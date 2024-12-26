@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { useSupabase } from '../../../context/SupabaseContext';
 import { useRouter } from 'next/navigation';
 
+// Force dynamic rendering, so supabaseUrl doesn’t need to exist at build time
+export const dynamic = "force-dynamic";
+
 const LoginPage = () => {
   const router = useRouter();
   const { supabase } = useSupabase();
