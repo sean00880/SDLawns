@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { exteriorServices, interiorServices } from "../../app/data/servicesData";
 import { packagesData } from "../../app/data/packagesData";
-
-// If you changed “deluxe” to “standard” in your data, ensure servicesData reflects that.
 
 type VehicleType = "sedan" | "suvTruck" | "van";
 
@@ -14,68 +12,60 @@ type VehicleType = "sedan" | "suvTruck" | "van";
  * - Basic Exterior Wash + Basic Interior Cleaning => $10 off
  * - Standard Exterior Detail + Standard Interior Detail => $20 off
  * - Premium Exterior Detail + Premium Interior Detail => $25 off
- *
- * You can expand or modify these as needed.
  */
 const discountCombos = [
-  {
-    exterior: "Basic Exterior Wash",
-    interior: "Basic Interior Cleaning",
-    discount: 10,
-  },
-  {
-    exterior: "Standard Exterior Detail",
-    interior: "Standard Interior Detail",
-    discount: 20,
-  },
-  {
-    exterior: "Premium Exterior Detail",
-    interior: "Premium Interior Detail",
-    discount: 25,
-  },
+  { exterior: "Basic Exterior Wash", interior: "Basic Interior Cleaning", discount: 10 },
+  { exterior: "Standard Exterior Detail", interior: "Standard Interior Detail", discount: 20 },
+  { exterior: "Premium Exterior Detail", interior: "Premium Interior Detail", discount: 25 },
 ];
 
+/* 
+ The default export is a wrapper that uses <Suspense>. 
+ Inside the fallback, you could show a spinner or skeleton. 
+ The <BookingContent> does the actual logic with useSearchParams().
+*/
 export default function BookingPage() {
-  // 1) Vehicle size
+  return (
+    <Suspense fallback={<div className="p-6 text-white">Loading booking form...</div>}>
+      <BookingContent />
+    </Suspense>
+  );
+}
+
+/* 
+ The child component that calls useSearchParams() 
+ and renders the booking form. 
+*/
+function BookingContent() {
   const [vehicleSize, setVehicleSize] = useState<VehicleType>("sedan");
-
-  // 2) Which items (services/packages) have been selected
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-
-  // Access search params via Next.js 13+ app router
-  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
 
+  // Next.js 13+ client-side router hook
+  const searchParams = useSearchParams();
+
+  // On mount, read ?service= from the URL and pre-select if found
   useEffect(() => {
-    const fetchSearchParams = async () => {
-      const serviceParam = searchParams?.get("service");
-      if (serviceParam) {
-        const allItems = [
-          ...exteriorServices,
-          ...interiorServices,
-          ...packagesData,
-        ];
-        const foundItem = allItems.find((i) => i.name === serviceParam.trim());
-        if (foundItem) {
-          setSelectedServices((prev) => {
-            if (!prev.includes(foundItem.name)) {
-              return [...prev, foundItem.name];
-            }
-            return prev;
-          });
-        }
+    const serviceParam = searchParams?.get("service");
+    if (serviceParam) {
+      const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
+      const foundItem = allItems.find((i) => i.name === serviceParam.trim());
+      if (foundItem) {
+        setSelectedServices((prev) => {
+          if (!prev.includes(foundItem.name)) {
+            return [...prev, foundItem.name];
+          }
+          return prev;
+        });
       }
-      setIsLoading(false);
-    };
-    fetchSearchParams();
+    }
+    setIsLoading(false);
   }, [searchParams]);
 
-  // Toggle an item in/out of `selectedServices`
-  function handleServiceToggle(serviceName: string) {
+  // Toggle a service/package name in or out of selectedServices
+  function handleServiceToggle(name: string) {
     setSelectedServices((prev) =>
-      prev.includes(serviceName)
-        ? prev.filter((name) => name !== serviceName)
-        : [...prev, serviceName]
+      prev.includes(name) ? prev.filter((s) => s !== name) : [...prev, name]
     );
   }
 
@@ -83,18 +73,12 @@ export default function BookingPage() {
     setVehicleSize(newSize);
   }
 
-  /**
-   * computeTotal:
-   * - Sum up prices of all selected items
-   * - Check for combos in discountCombos
-   * - Subtract the sum of relevant combo discounts
-   */
+  // Compute total
   function computeTotal(): number {
-    // Combine all items
     const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
-
-    // 1) Sum base prices
     let sum = 0;
+
+    // sum item prices
     for (const item of allItems) {
       if (selectedServices.includes(item.name)) {
         switch (vehicleSize) {
@@ -111,7 +95,7 @@ export default function BookingPage() {
       }
     }
 
-    // 2) Sum combo discounts
+    // subtract combo discounts
     let comboDiscount = 0;
     for (const combo of discountCombos) {
       const hasExterior = selectedServices.includes(combo.exterior);
@@ -121,27 +105,26 @@ export default function BookingPage() {
       }
     }
 
-    // Final total can't go below zero
-    const final = sum - comboDiscount;
-    return final < 0 ? 0 : final;
+    const total = sum - comboDiscount;
+    return total < 0 ? 0 : total;
   }
 
-  // final total
   const total = computeTotal();
 
-  // If you want to show how much discount in total from combos:
-  const totalComboDiscount = (() => {
-    let discount = 0;
-    for (const combo of discountCombos) {
-      if (
-        selectedServices.includes(combo.exterior) &&
-        selectedServices.includes(combo.interior)
-      ) {
-        discount += combo.discount;
-      }
+  // Just for display, how much discount from combos
+  const totalComboDiscount = discountCombos.reduce((acc, combo) => {
+    if (
+      selectedServices.includes(combo.exterior) &&
+      selectedServices.includes(combo.interior)
+    ) {
+      return acc + combo.discount;
     }
-    return discount;
-  })();
+    return acc;
+  }, 0);
+
+  if (isLoading) {
+    return <div className="p-6 text-white">Loading booking data...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -170,7 +153,6 @@ export default function BookingPage() {
                 />
                 <span>Sedan</span>
               </label>
-
               <label className="cursor-pointer flex flex-col items-center">
                 <input
                   type="radio"
@@ -182,7 +164,6 @@ export default function BookingPage() {
                 />
                 <span>SUV/Truck</span>
               </label>
-
               <label className="cursor-pointer flex flex-col items-center">
                 <input
                   type="radio"
@@ -203,25 +184,25 @@ export default function BookingPage() {
               Exterior Services ({vehicleSize.toUpperCase()} Pricing)
             </h2>
             <div className="space-y-2">
-              {exteriorServices.map((service) => {
-                let price = service.sedanPrice;
-                if (vehicleSize === "suvTruck") price = service.suvTruckPrice;
-                if (vehicleSize === "van") price = service.vanPrice;
+              {exteriorServices.map((srv) => {
+                let price = srv.sedanPrice;
+                if (vehicleSize === "suvTruck") price = srv.suvTruckPrice;
+                if (vehicleSize === "van") price = srv.vanPrice;
 
-                const isChecked = selectedServices.includes(service.name);
+                const isChecked = selectedServices.includes(srv.name);
 
                 return (
                   <label
-                    key={service.name}
+                    key={srv.name}
                     className="flex items-center space-x-2 cursor-pointer"
                   >
                     <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={() => handleServiceToggle(service.name)}
+                      onChange={() => handleServiceToggle(srv.name)}
                     />
                     <span>
-                      {service.name}: <span className="text-green-300">${price}</span>
+                      {srv.name}: <span className="text-green-300">${price}</span>
                     </span>
                   </label>
                 );
@@ -235,25 +216,25 @@ export default function BookingPage() {
               Interior Services ({vehicleSize.toUpperCase()} Pricing)
             </h2>
             <div className="space-y-2">
-              {interiorServices.map((service) => {
-                let price = service.sedanPrice;
-                if (vehicleSize === "suvTruck") price = service.suvTruckPrice;
-                if (vehicleSize === "van") price = service.vanPrice;
+              {interiorServices.map((srv) => {
+                let price = srv.sedanPrice;
+                if (vehicleSize === "suvTruck") price = srv.suvTruckPrice;
+                if (vehicleSize === "van") price = srv.vanPrice;
 
-                const isChecked = selectedServices.includes(service.name);
+                const isChecked = selectedServices.includes(srv.name);
 
                 return (
                   <label
-                    key={service.name}
+                    key={srv.name}
                     className="flex items-center space-x-2 cursor-pointer"
                   >
                     <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={() => handleServiceToggle(service.name)}
+                      onChange={() => handleServiceToggle(srv.name)}
                     />
                     <span>
-                      {service.name}: <span className="text-green-300">${price}</span>
+                      {srv.name}: <span className="text-green-300">${price}</span>
                     </span>
                   </label>
                 );
@@ -304,8 +285,11 @@ export default function BookingPage() {
 
           <div className="space-y-1 mb-4">
             {selectedServices.map((serviceName) => {
-              // Look up the item in any of the arrays
-              const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
+              const allItems = [
+                ...exteriorServices,
+                ...interiorServices,
+                ...packagesData,
+              ];
               const item = allItems.find((i) => i.name === serviceName);
               if (!item) return null;
 
@@ -330,6 +314,7 @@ export default function BookingPage() {
             </div>
           )}
 
+          {/* Final total */}
           <div className="flex justify-between border-t border-white/20 pt-2 text-lg font-bold">
             <span>Total:</span>
             <span>${total}</span>
