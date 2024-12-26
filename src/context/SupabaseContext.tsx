@@ -1,9 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { createClient, type AuthSession, type AuthChangeEvent, type User, type SupabaseClient, type Subscription } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://fcvvcdiwgtijzcozanlk.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjdnZjZGl3Z3Rpanpjb3phbmxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUxMTcyNTgsImV4cCI6MjA1MDY5MzI1OH0.WYabCaeGzzN28llSbEoGrsVazInH699_PLpGbVQ4ECY';
-//const supabaseServiceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjdnZjZGl3Z3Rpanpjb3phbmxrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNTExNzI1OCwiZXhwIjoyMDUwNjkzMjU4fQ.V6BaU8CwLPOO7qTKvlVo14sHR5eW1saCFDVk782aweA';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -30,7 +29,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     getSession();
 
-    const { subscription } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: AuthSession | null) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: AuthSession | null) => {
       setSession(session);
       setUser(session?.user ?? null);
     });

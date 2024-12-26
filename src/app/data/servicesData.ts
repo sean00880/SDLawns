@@ -54,6 +54,7 @@ export const exteriorServices = [
       name: "Basic Interior Cleaning",
       sedanPrice: 70,
       suvTruckPrice: 110,
+      img: "/images/basic-interior.jpg",
       vanPrice: 130,
       description: [
         "Window cleaning (exterior) and (interior)",
@@ -66,6 +67,7 @@ export const exteriorServices = [
       name: "Standard Interior Detail",
       sedanPrice: 185,
       suvTruckPrice: 225,
+      img: "/images/standard-interior.jpg",
       vanPrice: 250,
       description: [
         "Carpet deodorizer and Steamer",
@@ -80,6 +82,7 @@ export const exteriorServices = [
     },
     {
       name: "Premium Interior Detail",
+      img: "/images/premium-interior.jpg",
       sedanPrice: 265,
       suvTruckPrice: 305,
       vanPrice: 325,
