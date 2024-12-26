@@ -1,9 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import {
-  PaymentElement,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
+import React, { useEffect, useState } from "react";
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 const PaymentForm: React.FC = () => {
   const stripe = useStripe();
@@ -24,15 +20,15 @@ const PaymentForm: React.FC = () => {
     const { error: stripeError } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        // Make sure to redirect to your success page
-        return_url: window.location.origin + '/success',
+        return_url: window.location.origin + "/success",
       },
     });
 
     setIsProcessing(false);
 
     if (stripeError) {
-      setErrorMessage(stripeError.message);
+      // Convert `undefined` to a fallback value or null
+      setErrorMessage(stripeError.message ?? "An error occurred");
     }
   };
 
@@ -41,7 +37,7 @@ const PaymentForm: React.FC = () => {
       <PaymentElement />
       <button disabled={!stripe || isProcessing} id="submit">
         <span id="button-text">
-          {isProcessing ? 'Processing ...' : 'Pay now'}
+          {isProcessing ? "Processing ..." : "Pay now"}
         </span>
       </button>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
