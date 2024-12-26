@@ -1,9 +1,11 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { exteriorServices, interiorServices } from "../../app/data/servicesData";
 import { packagesData } from "../../app/data/packagesData";
+
+// -- THIS LINE FORCES DYNAMIC RENDERING:
+export const dynamic = "force-dynamic";
 
 // Type for vehicle size radio
 type VehicleType = "sedan" | "suvTruck" | "van";
