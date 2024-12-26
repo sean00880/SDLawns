@@ -1,13 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { exteriorServices, interiorServices } from "../../app/data/servicesData";
 import { packagesData } from "../../app/data/packagesData";
 
-// -- THIS LINE FORCES DYNAMIC RENDERING:
-export const dynamic = "force-dynamic";
+// If you changed “deluxe” to “standard” in your data, ensure servicesData reflects that.
 
-// Type for vehicle size radio
 type VehicleType = "sedan" | "suvTruck" | "van";
 
 /**
@@ -15,6 +14,8 @@ type VehicleType = "sedan" | "suvTruck" | "van";
  * - Basic Exterior Wash + Basic Interior Cleaning => $10 off
  * - Standard Exterior Detail + Standard Interior Detail => $20 off
  * - Premium Exterior Detail + Premium Interior Detail => $25 off
+ *
+ * You can expand or modify these as needed.
  */
 const discountCombos = [
   {
@@ -35,33 +36,41 @@ const discountCombos = [
 ];
 
 export default function BookingPage() {
-  // Vehicle size radio state
+  // 1) Vehicle size
   const [vehicleSize, setVehicleSize] = useState<VehicleType>("sedan");
 
-  // Which services/packages are selected (by name)
+  // 2) Which items (services/packages) have been selected
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
-  // Access search params (Next.js 13+)
+  // Access search params via Next.js 13+ app router
   const searchParams = useSearchParams();
+  const [isLoading, setIsLoading] = useState(true);
 
-  // If ?service= is present, pre-check that item
   useEffect(() => {
-    const serviceParam = searchParams?.get("service");
-    if (serviceParam) {
-      const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
-      const foundItem = allItems.find((i) => i.name === serviceParam.trim());
-      if (foundItem) {
-        setSelectedServices((prev) => {
-          if (!prev.includes(foundItem.name)) {
-            return [...prev, foundItem.name];
-          }
-          return prev;
-        });
+    const fetchSearchParams = async () => {
+      const serviceParam = searchParams?.get("service");
+      if (serviceParam) {
+        const allItems = [
+          ...exteriorServices,
+          ...interiorServices,
+          ...packagesData,
+        ];
+        const foundItem = allItems.find((i) => i.name === serviceParam.trim());
+        if (foundItem) {
+          setSelectedServices((prev) => {
+            if (!prev.includes(foundItem.name)) {
+              return [...prev, foundItem.name];
+            }
+            return prev;
+          });
+        }
       }
-    }
+      setIsLoading(false);
+    };
+    fetchSearchParams();
   }, [searchParams]);
 
-  // Toggle a service/package in or out of selectedServices
+  // Toggle an item in/out of `selectedServices`
   function handleServiceToggle(serviceName: string) {
     setSelectedServices((prev) =>
       prev.includes(serviceName)
@@ -74,12 +83,18 @@ export default function BookingPage() {
     setVehicleSize(newSize);
   }
 
-  // Compute total with combo discounts
+  /**
+   * computeTotal:
+   * - Sum up prices of all selected items
+   * - Check for combos in discountCombos
+   * - Subtract the sum of relevant combo discounts
+   */
   function computeTotal(): number {
+    // Combine all items
     const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
-    let sum = 0;
 
-    // 1) sum base prices
+    // 1) Sum base prices
+    let sum = 0;
     for (const item of allItems) {
       if (selectedServices.includes(item.name)) {
         switch (vehicleSize) {
@@ -96,23 +111,25 @@ export default function BookingPage() {
       }
     }
 
-    // 2) sum combo discounts
+    // 2) Sum combo discounts
     let comboDiscount = 0;
     for (const combo of discountCombos) {
-      const hasExt = selectedServices.includes(combo.exterior);
-      const hasInt = selectedServices.includes(combo.interior);
-      if (hasExt && hasInt) {
+      const hasExterior = selectedServices.includes(combo.exterior);
+      const hasInterior = selectedServices.includes(combo.interior);
+      if (hasExterior && hasInterior) {
         comboDiscount += combo.discount;
       }
     }
 
-    const total = sum - comboDiscount;
-    return total < 0 ? 0 : total;
+    // Final total can't go below zero
+    const final = sum - comboDiscount;
+    return final < 0 ? 0 : final;
   }
 
+  // final total
   const total = computeTotal();
 
-  // Optional: show total discount from combos
+  // If you want to show how much discount in total from combos:
   const totalComboDiscount = (() => {
     let discount = 0;
     for (const combo of discountCombos) {
@@ -135,12 +152,11 @@ export default function BookingPage() {
         </p>
       </header>
 
-      {/* MAIN: Grid layout on lg screens; single column on smaller screens */}
-      <main className="flex-grow grid grid-cols-1 lg:grid-cols-3 p-6 gap-6">
-        {/* LEFT: 2 columns worth (the form) */}
-        <div className="space-y-8 col-span-2">
+      <main className="flex-grow flex flex-col lg:flex-row p-6 gap-6">
+        {/* LEFT: FORM */}
+        <div className="w-full lg:w-2/3 space-y-8">
           {/* 1) Vehicle Size */}
-          <section className="bg-white/5 p-4 rounded-md border border-white/10">
+          <section>
             <h2 className="text-xl font-semibold mb-2">Select Vehicle Size:</h2>
             <div className="flex space-x-4">
               <label className="cursor-pointer flex flex-col items-center">
@@ -181,31 +197,31 @@ export default function BookingPage() {
             </div>
           </section>
 
-          {/* 2) Exterior Services */}
-          <section className="bg-white/5 p-4 rounded-md border border-white/10">
+          {/* 2) Exterior */}
+          <section>
             <h2 className="text-xl font-semibold mb-2">
               Exterior Services ({vehicleSize.toUpperCase()} Pricing)
             </h2>
             <div className="space-y-2">
-              {exteriorServices.map((srv) => {
-                let price = srv.sedanPrice;
-                if (vehicleSize === "suvTruck") price = srv.suvTruckPrice;
-                if (vehicleSize === "van") price = srv.vanPrice;
+              {exteriorServices.map((service) => {
+                let price = service.sedanPrice;
+                if (vehicleSize === "suvTruck") price = service.suvTruckPrice;
+                if (vehicleSize === "van") price = service.vanPrice;
 
-                const isChecked = selectedServices.includes(srv.name);
+                const isChecked = selectedServices.includes(service.name);
 
                 return (
                   <label
-                    key={srv.name}
+                    key={service.name}
                     className="flex items-center space-x-2 cursor-pointer"
                   >
                     <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={() => handleServiceToggle(srv.name)}
+                      onChange={() => handleServiceToggle(service.name)}
                     />
                     <span>
-                      {srv.name}: <span className="text-green-300">${price}</span>
+                      {service.name}: <span className="text-green-300">${price}</span>
                     </span>
                   </label>
                 );
@@ -213,31 +229,31 @@ export default function BookingPage() {
             </div>
           </section>
 
-          {/* 3) Interior Services */}
-          <section className="bg-white/5 p-4 rounded-md border border-white/10">
+          {/* 3) Interior */}
+          <section>
             <h2 className="text-xl font-semibold mb-2">
               Interior Services ({vehicleSize.toUpperCase()} Pricing)
             </h2>
             <div className="space-y-2">
-              {interiorServices.map((srv) => {
-                let price = srv.sedanPrice;
-                if (vehicleSize === "suvTruck") price = srv.suvTruckPrice;
-                if (vehicleSize === "van") price = srv.vanPrice;
+              {interiorServices.map((service) => {
+                let price = service.sedanPrice;
+                if (vehicleSize === "suvTruck") price = service.suvTruckPrice;
+                if (vehicleSize === "van") price = service.vanPrice;
 
-                const isChecked = selectedServices.includes(srv.name);
+                const isChecked = selectedServices.includes(service.name);
 
                 return (
                   <label
-                    key={srv.name}
+                    key={service.name}
                     className="flex items-center space-x-2 cursor-pointer"
                   >
                     <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={() => handleServiceToggle(srv.name)}
+                      onChange={() => handleServiceToggle(service.name)}
                     />
                     <span>
-                      {srv.name}: <span className="text-green-300">${price}</span>
+                      {service.name}: <span className="text-green-300">${price}</span>
                     </span>
                   </label>
                 );
@@ -245,8 +261,8 @@ export default function BookingPage() {
             </div>
           </section>
 
-          {/* 4) Detailing Packages */}
-          <section className="bg-white/5 p-4 rounded-md border border-white/10">
+          {/* 4) Packages */}
+          <section>
             <h2 className="text-xl font-semibold mb-2">
               Detailing Packages ({vehicleSize.toUpperCase()} Pricing)
             </h2>
@@ -278,29 +294,19 @@ export default function BookingPage() {
           </section>
         </div>
 
-        {/* RIGHT: SUMMARY (sticky on large screens) */}
-        <aside
-          className="
-            col-span-1 
-            bg-white/10 
-            p-6 
-            rounded-lg 
-            border border-white/20 
-            h-fit 
-            self-start 
-            lg:sticky 
-            lg:top-20
-          "
-        >
+        {/* RIGHT: SUMMARY */}
+        <aside className="w-full lg:w-1/3 bg-white/10 p-6 rounded-lg border border-white/20 h-fit self-start sticky-summary">
           <h2 className="text-xl font-semibold mb-4">SUMMARY</h2>
+
           <p className="text-white/70 mb-4">
             Vehicle Size: <strong>{vehicleSize.toUpperCase()}</strong>
           </p>
 
           <div className="space-y-1 mb-4">
             {selectedServices.map((serviceName) => {
-              const all = [...exteriorServices, ...interiorServices, ...packagesData];
-              const item = all.find((i) => i.name === serviceName);
+              // Look up the item in any of the arrays
+              const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
+              const item = allItems.find((i) => i.name === serviceName);
               if (!item) return null;
 
               let price = item.sedanPrice;
@@ -316,7 +322,7 @@ export default function BookingPage() {
             })}
           </div>
 
-          {/* Show combo discount if any */}
+          {/* If combos apply, show them */}
           {totalComboDiscount > 0 && (
             <div className="flex justify-between text-red-400 mb-2">
               <span>Combo Discount(s):</span>
@@ -324,7 +330,6 @@ export default function BookingPage() {
             </div>
           )}
 
-          {/* Final total */}
           <div className="flex justify-between border-t border-white/20 pt-2 text-lg font-bold">
             <span>Total:</span>
             <span>${total}</span>
