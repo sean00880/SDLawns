@@ -2,46 +2,17 @@
 
 import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { supabase } from "../../lib/supabaseClient";
-import { Calendar } from "@/components/components/ui/calendar";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/components/ui/form";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/components/ui/popover";
-import { Button } from "@/components/components/ui/button";
-
 import { exteriorServices, interiorServices } from "../../app/data/servicesData";
 import { packagesData } from "../../app/data/packagesData";
+import Calendar from "../../components/Calendar";
+
+type VehicleType = "sedan" | "suvTruck" | "van";
 
 const discountCombos = [
   { exterior: "Basic Exterior Wash", interior: "Basic Interior Cleaning", discount: 10 },
   { exterior: "Standard Exterior Detail", interior: "Standard Interior Detail", discount: 20 },
   { exterior: "Premium Exterior Detail", interior: "Premium Interior Detail", discount: 25 },
 ];
-
-const FormSchema = z.object({
-  date: z.date({ required_error: "A date is required." }),
-});
-
-type VehicleType = "sedan" | "suvTruck" | "van";
-
-type FormValues = z.infer<typeof FormSchema> & {
-  vehicleSize: VehicleType;
-  selectedServices: string[];
-  totalPrice: number;
-};
 
 export default function BookingPage() {
   return (
@@ -54,12 +25,10 @@ export default function BookingPage() {
 function BookingContent() {
   const [vehicleSize, setVehicleSize] = useState<VehicleType>("sedan");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
   const searchParams = useSearchParams();
-  const form = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: { date: null, vehicleSize, selectedServices, totalPrice: 0 },
-  });
 
   useEffect(() => {
     const serviceParam = searchParams?.get("service");
@@ -67,9 +36,12 @@ function BookingContent() {
       const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
       const foundItem = allItems.find((i) => i.name === serviceParam.trim());
       if (foundItem) {
-        setSelectedServices((prev) =>
-          prev.includes(foundItem.name) ? prev : [...prev, foundItem.name]
-        );
+        setSelectedServices((prev) => {
+          if (!prev.includes(foundItem.name)) {
+            return [...prev, foundItem.name];
+          }
+          return prev;
+        });
       }
     }
     setIsLoading(false);
@@ -79,6 +51,10 @@ function BookingContent() {
     setSelectedServices((prev) =>
       prev.includes(name) ? prev.filter((s) => s !== name) : [...prev, name]
     );
+  }
+
+  function handleVehicleSizeChange(newSize: VehicleType) {
+    setVehicleSize(newSize);
   }
 
   function computeTotal(): number {
@@ -110,28 +86,30 @@ function BookingContent() {
       }
     }
 
-    return sum - comboDiscount < 0 ? 0 : sum - comboDiscount;
+    const total = sum - comboDiscount;
+    return total < 0 ? 0 : total;
   }
 
-  const handleSubmit = async (data: FormValues) => {
-    const total = computeTotal();
+  const total = computeTotal();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedDate || selectedServices.length === 0) {
+      alert("Please select a service and a date.");
+      return;
+    }
 
     const formData = {
       services: selectedServices,
       vehicleSize,
-      date: data.date?.toISOString(),
+      date: selectedDate.toDateString(),
       totalPrice: total,
     };
 
-    try {
-      const { error } = await supabase.from("bookings").insert(formData);
-      if (error) throw error;
-
-      alert("Booking submitted successfully.");
-    } catch (error) {
-      console.error("Error submitting booking:", error);
-      alert("There was an error submitting your booking.");
-    }
+    // Send to email (example: use a service like EmailJS, or setup backend)
+    console.log("Submitting booking:", formData);
+    alert("Booking request submitted. Thank you!");
   };
 
   if (isLoading) {
@@ -150,47 +128,57 @@ function BookingContent() {
       <main className="flex-grow flex flex-col lg:flex-row p-6 gap-6">
         <div className="w-full lg:w-2/3 space-y-8">
           {/* Vehicle Size and Services/Packages Sections */}
+          {/* Same logic as original */}
         </div>
 
         <aside className="w-full lg:w-1/3 bg-white/10 p-6 rounded-lg border border-white/20 h-fit self-start sticky-summary">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className="w-full text-left"
-                          >
-                            {field.value ? field.value.toDateString() : "Pick a date"}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <h2 className="text-xl font-semibold mb-4">SUMMARY</h2>
+          <p className="text-white/70 mb-4">
+            Vehicle Size: <strong>{vehicleSize.toUpperCase()}</strong>
+          </p>
 
-              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
-                Submit Booking
-              </Button>
-            </form>
-          </Form>
+          <div className="space-y-1 mb-4">
+            {selectedServices.map((serviceName) => {
+              const allItems = [
+                ...exteriorServices,
+                ...interiorServices,
+                ...packagesData,
+              ];
+              const item = allItems.find((i) => i.name === serviceName);
+              if (!item) return null;
+
+              let price = item.sedanPrice;
+              if (vehicleSize === "suvTruck") price = item.suvTruckPrice;
+              if (vehicleSize === "van") price = item.vanPrice;
+
+              return (
+                <div key={serviceName} className="flex justify-between">
+                  <span>{serviceName}</span>
+                  <span className="text-green-300">${price}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex justify-between border-t border-white/20 pt-2 text-lg font-bold">
+            <span>Total:</span>
+            <span>${total}</span>
+          </div>
+
+          <div className="mt-6">
+            <Calendar
+              onChange={(date) => setSelectedDate(date)}
+              value={selectedDate}
+              bookedDates={[]} // Add booked dates here if needed
+            />
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            className="mt-6 w-full bg-green-600 hover:bg-green-700 py-2 px-4 rounded"
+          >
+            Submit Booking
+          </button>
         </aside>
       </main>
     </div>

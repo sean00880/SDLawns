@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -11,7 +10,15 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "preserve", // Enable modern React JSX runtime
+    "lib": [
+      "dom",
+      "esnext"
+    ], // Include DOM definitions
+    "types": [
+      "react",
+      "react-dom"
+    ], // Include React types
     "incremental": true,
     "plugins": [
       {
@@ -19,9 +26,18 @@
       }
     ],
     "paths": {
-      "@/components/*": ["./src/*"]
+      "@/components/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
