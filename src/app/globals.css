@@ -4,7 +4,7 @@
 
 .sticky-summary {
   position: sticky;
-  top: 0;
+  top: 20vh;
   background-color: white;
   padding: 1rem;
   border-radius: 0.5rem;
@@ -139,7 +139,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background;
   }
 }
 
@@ -147,4 +147,34 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: "Barlow Condensed Medium", sans-serif;
   }
+}
+
+
+
+.month{
+  background: black!important;
+}
+
+.data-\[selected\=true\]\:bg-primary[data-selected=true] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(14, 117, 16)!important;
+}
+
+
+.data-\[disabled\=true\]\:text-default-300[data-disabled=true] {
+  --tw-text-opacity: 1;
+  color: grey!important;
+}
+
+.data-\[disabled\=false\]\:text-default-300[data-disabled=false] {
+  --tw-text-opacity: 1;
+  color: rgb(216, 255, 214)!important;
+}
+
+button, [role="button"]{
+  color:white!important;
+}
+
+.calendar{
+  border-radius: 0px 0px 10px 10px; 
 }
