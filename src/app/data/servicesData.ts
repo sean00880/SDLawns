@@ -8,7 +8,11 @@ export const exteriorServices = [
       vanPrice: 100,
       img: "/images/basic-exterior.jpg",
       description: [
-        "Same description as on-site",
+        "Prewash (prevent scratches)",
+        "Professional Fiber Hand Wash",
+        "Pressure Wash Wheel Wells",
+        "Detail Rims and Tires",
+        "Windows and Mirrors",
       ],
     },
     {

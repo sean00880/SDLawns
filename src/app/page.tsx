@@ -15,6 +15,9 @@ export type VehicleType = "sedan" | "suvTruck" | "van";
 
 // If you’re using Next.js app router, this is your page component:
 export default function HomePage() {
+
+  
+
   // Track which vehicle size is selected
   const [activeVehicle, setActiveVehicle] = useState<VehicleType>("sedan");
 
@@ -38,7 +41,7 @@ export default function HomePage() {
             <Button
               variant={activeVehicle === "suvTruck" ? "default" : "secondary"}
               onClick={() => setActiveVehicle("suvTruck")}
-              className="text-black"
+            
             >
               SUV/Truck
             </Button>
