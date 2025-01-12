@@ -6,6 +6,7 @@ import { exteriorServices, interiorServices } from "../../app/data/servicesData"
 import { packagesData } from "../../app/data/packagesData";
 import { Calendar, Radio, RadioGroup, Button, ButtonGroup, cn } from "@nextui-org/react";
 import { today, getLocalTimeZone, isWeekend, startOfWeek, startOfMonth } from "@internationalized/date";
+import { supabase } from "@/components/lib/supaBaseClient";
 import { useLocale } from "@react-aria/i18n";
 
 type VehicleType = "sedan" | "suvTruck" | "van";
@@ -136,17 +137,26 @@ function BookingContent() {
     return <div className="p-6 text-white">Loading booking data...</div>;
   }
 
-    const handleSubmit = async () => {
-      const data = {
-        vehicleSize,
-        selectedServices,
-        date: selectedDate,
-        total
-      };
-  
-      console.log("Submitting form data:", data);
-      alert("Submitted successfully!");
+  const handleSubmit = async () => {
+    const data = {
+      vehicleSize,
+      services: selectedServices,
+      date: selectedDate.toString(),
+      total,
     };
+
+    // Insert into Supabase
+    const { error } = await supabase.from("quote_requests").insert([data]);
+
+    if (error) {
+      console.error("Error submitting quote request:", error);
+      alert("An error occurred while submitting your quote.");
+    } else {
+      alert("Quote request submitted successfully!");
+      setSelectedServices([]);
+      setSelectedDate(today(getLocalTimeZone())); // Reset the form
+    }
+  };
   
     const CustomRadio: React.FC<React.ComponentProps<typeof Radio>> = (props) => {
       const { children, ...otherProps } = props;
@@ -365,13 +375,13 @@ function BookingContent() {
           </div>
 
           
-          <section>
+          <section className="bg-black flex flex-col justify-center">
             <h2 className="text-xl text-red font-semibold mb-4">Select a Date</h2>
             <Calendar className="bg-white text-white"
         aria-label="Date (Unavailable)"
 
         classNames={{
-          content: "w-full bg-black calendar",
+          content: "w-full  calendar",
         }}
         focusedValue={value}
         nextButtonProps={{
