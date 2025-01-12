@@ -38,6 +38,7 @@ export default function HomePage() {
             <Button
               variant={activeVehicle === "suvTruck" ? "default" : "secondary"}
               onClick={() => setActiveVehicle("suvTruck")}
+              className="text-black"
             >
               SUV/Truck
             </Button>
