@@ -11,7 +11,7 @@ import { useLocale } from "@react-aria/i18n";
 import { Resend } from "resend";
 import { EmailTemplate } from "@/components/components/email-template";
 
-const resend = new Resend(process.env.NEXT_PUBLIC_RESEND_API_KEY); // Set RESEND_API_KEY in your .env.local file
+const resend = new Resend(process.env.NEXT_RESEND_API_KEY); // Set RESEND_API_KEY in your .env.local file
 
 
 type VehicleType = "sedan" | "suvTruck" | "van";
@@ -172,11 +172,11 @@ const [phone, setPhone] = useState<string>("");
     } else {
       alert("Quote request submitted successfully!");
 
-      const adminEmail = "service@sitedominion.com";
+      const adminEmail = "service@nolimitsmobiledetailing.com";
 
       // Send email to admin
       await resend.emails.send({
-        from: "support@yourdomain.com", // Replace with your verified Resend domain
+        from: "service@nolimitsmobiledetailing.com", // Replace with your verified Resend domain
         to: adminEmail,
         subject: "New Quote Request Submitted",
         react: <EmailTemplate firstName="Admin" details={data} />,
@@ -184,7 +184,7 @@ const [phone, setPhone] = useState<string>("");
 
       // Send confirmation email to user
       await resend.emails.send({
-        from: "support@yourdomain.com",
+        from: "service@nolimitsmobiledetailing.com",
         to: email,
         subject: "Your Quote Request Confirmation",
         react: <EmailTemplate firstName={name} details={data} />,

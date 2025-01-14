@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   },
 
   env: {
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_API_KEY: process.env.NEXT_RESEND_API_KEY,
   },
 
   // Optionally, you can ignore TypeScript errors as well, though it's not recommended:
