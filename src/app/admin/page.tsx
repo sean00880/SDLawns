@@ -27,6 +27,11 @@ export default function AdminPage() {
     checkAuth();
   }, [router]);
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/admin/signin");
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white">
@@ -41,9 +46,17 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <header className="text-white p-4">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <p className="text-sm">Manage and modify quote requests</p>
+      <header className="flex justify-between items-center text-white p-4">
+        <div>
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <p className="text-sm">Manage and modify quote requests</p>
+        </div>
+        <button
+          onClick={handleSignOut}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+        >
+          Sign Out
+        </button>
       </header>
 
       <main className="p-6">
