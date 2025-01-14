@@ -93,18 +93,13 @@ const Header: React.FC = () => {
               </Link>
             </li>
             <li>
-              <Link href="/services" className="nav-link">
+              <Link href="#services" className="nav-link">
                 Services
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="nav-link">
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link href="/admin" className="nav-link">
-                Admin
+              <Link href="/booking" className="nav-link">
+                Instant Free Quote
               </Link>
             </li>
           </ul>

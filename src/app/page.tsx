@@ -31,7 +31,7 @@ export default function HomePage() {
         {/* Horizontal Tabs to select vehicle type */}
         <section className="mb-6">
           <h2 className="text-2xl font-semibold text-white mb-4">Select Vehicle Type</h2>
-          <div className="flex space-x-4">
+          <div className="flex space-x-4" id="services">
             <Button
               variant={activeVehicle === "sedan" ? "default" : "secondary"}
               onClick={() => setActiveVehicle("sedan")}
