@@ -153,7 +153,7 @@ const [phone, setPhone] = useState<string>("");
       alert("Please fill out all the required fields (Name, Email, Phone).");
       return;
     }
-
+  
     const data = {
       vehicle_size: vehicleSize,
       services: JSON.stringify(selectedServices),
@@ -163,25 +163,25 @@ const [phone, setPhone] = useState<string>("");
       client_email: email,
       client_phone: phone,
     };
-
+  
     const { error } = await supabase.from("quote_requests").insert([data]);
-
+  
     if (error) {
       console.error("Error submitting quote request:", error);
       alert("An error occurred while submitting your quote.");
     } else {
       alert("Quote request submitted successfully!");
-
+  
       const adminEmail = "service@nolimitsmobiledetailing.com";
-
+  
       // Send email to admin
       await resend.emails.send({
-        from: "service@nolimitsmobiledetailing.com", // Replace with your verified Resend domain
+        from: "service@nolimitsmobiledetailing.com",
         to: adminEmail,
         subject: "New Quote Request Submitted",
         react: <EmailTemplate firstName="Admin" details={data} />,
       });
-
+  
       // Send confirmation email to user
       await resend.emails.send({
         from: "service@nolimitsmobiledetailing.com",
@@ -189,7 +189,7 @@ const [phone, setPhone] = useState<string>("");
         subject: "Your Quote Request Confirmation",
         react: <EmailTemplate firstName={name} details={data} />,
       });
-
+  
       setSelectedServices([]);
       setSelectedDate(today(getLocalTimeZone()));
       setVehicleSize("sedan");
@@ -198,6 +198,7 @@ const [phone, setPhone] = useState<string>("");
       setPhone("");
     }
   };
+  
 
 
   
@@ -407,6 +408,7 @@ const [phone, setPhone] = useState<string>("");
     </div>
   </div>
 </section>
+
         </div>
 
         {/* RIGHT: SUMMARY */}
