@@ -8,7 +8,11 @@ import { Calendar, Radio, RadioGroup, Button, ButtonGroup, cn } from "@nextui-or
 import { today, getLocalTimeZone, isWeekend, startOfWeek, startOfMonth } from "@internationalized/date";
 import { supabase } from "@/components/lib/supaBaseClient";
 import { useLocale } from "@react-aria/i18n";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+import { EmailTemplate } from "@/components/components/EmailTemplate";
+
+const resend = new Resend(process.env.RESEND_API_KEY); // Set RESEND_API_KEY in your .env.local file
+
 
 type VehicleType = "sedan" | "suvTruck" | "van";
 
@@ -30,22 +34,7 @@ const discountCombos = [
  The <BookingContent> does the actual logic with useSearchParams().
 */
 
-export async function sendNotificationEmail({ to, subject, body }: { to: string; subject: string; body: string }) {
-  const transporter = nodemailer.createTransport({
-    service: "gmail", // Replace with your email service
-    auth: {
-      user: "your-email@gmail.com", // Replace with your email
-      pass: "your-password", // Replace with your email password
-    },
-  });
 
-  await transporter.sendMail({
-    from: "your-email@gmail.com",
-    to,
-    subject,
-    text: body,
-  });
-}
 
 export default function BookingPage() {
   return (
@@ -164,7 +153,7 @@ const [phone, setPhone] = useState<string>("");
       alert("Please fill out all the required fields (Name, Email, Phone).");
       return;
     }
-  
+
     const data = {
       vehicle_size: vehicleSize,
       services: JSON.stringify(selectedServices),
@@ -174,35 +163,33 @@ const [phone, setPhone] = useState<string>("");
       client_email: email,
       client_phone: phone,
     };
-  
-    // Insert into Supabase
+
     const { error } = await supabase.from("quote_requests").insert([data]);
-  
+
     if (error) {
       console.error("Error submitting quote request:", error);
       alert("An error occurred while submitting your quote.");
     } else {
       alert("Quote request submitted successfully!");
-  
-      // Send email notifications
-      const adminEmail = "service@sitedominion.com"; // Replace with your admin email
-      await sendNotificationEmail({
+
+      const adminEmail = "service@sitedominion.com";
+
+      // Send email to admin
+      await resend.emails.send({
+        from: "support@yourdomain.com", // Replace with your verified Resend domain
         to: adminEmail,
         subject: "New Quote Request Submitted",
-        body: `A new quote request has been submitted. Details:\n\n${JSON.stringify(data, null, 2)}`,
+        react: <EmailTemplate firstName="Admin" details={data} />,
       });
-  
-      await sendNotificationEmail({
+
+      // Send confirmation email to user
+      await resend.emails.send({
+        from: "support@yourdomain.com",
         to: email,
         subject: "Your Quote Request Confirmation",
-        body: `Thank you, ${name}, for submitting your quote request. Here are the details:\n\n${JSON.stringify(
-          data,
-          null,
-          2
-        )}`,
+        react: <EmailTemplate firstName={name} details={data} />,
       });
-  
-      // Reset form fields
+
       setSelectedServices([]);
       setSelectedDate(today(getLocalTimeZone()));
       setVehicleSize("sedan");
@@ -211,6 +198,8 @@ const [phone, setPhone] = useState<string>("");
       setPhone("");
     }
   };
+
+
   
   
   
