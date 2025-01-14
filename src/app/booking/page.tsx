@@ -198,12 +198,7 @@ const [phone, setPhone] = useState<string>("");
       setPhone("");
     }
   };
-  
 
-
-  
-  
-  
     const CustomRadio: React.FC<React.ComponentProps<typeof Radio>> = (props) => {
       const { children, ...otherProps } = props;
     
