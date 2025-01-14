@@ -500,7 +500,7 @@ const [phone, setPhone] = useState<string>("");
         topContent={
           <ButtonGroup
             fullWidth
-            className="px-3 pb-2 pt-3 bg-black rounded-b-sm [&>button]:text-default-500 [&>button]:border-default-200/60"
+            className="px-3 pb-2 pt-3 bg-white rounded-b-sm [&>button]:text-default-500 [&>button]:border-default-200/60"
             radius="full"
             size="sm"
             variant="bordered"
