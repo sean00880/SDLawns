@@ -10,6 +10,8 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
+  
+
   useEffect(() => {
     const checkAuth = async () => {
       // Check session from Supabase
