@@ -102,14 +102,16 @@ const AdminModifyQuote = () => {
 
   const handleUpdateQuote = async () => {
     setLoading(true);
+    const updatedData = {
+      vehicle_size: vehicleSize,
+      services: selectedServices,
+      date: selectedDate.toString(),
+      total,
+    };
+
     const { error } = await supabase
       .from("quote_requests")
-      .update({
-        vehicle_size: vehicleSize,
-        services: selectedServices,
-        date: selectedDate.toString(),
-        total,
-      })
+      .update(updatedData)
       .eq("id", selectedQuote.id);
 
     setLoading(false);
@@ -121,11 +123,54 @@ const AdminModifyQuote = () => {
       setQuotes((prev) =>
         prev.map((quote) =>
           quote.id === selectedQuote.id
-            ? { ...quote, vehicle_size: vehicleSize, services: selectedServices, date: selectedDate.toString(), total }
+            ? { ...quote, ...updatedData }
             : quote
         )
       );
-      alert("Quote updated successfully!");
+
+      // Send email to admin
+      const adminResponse = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: "service@nolimitsmobiledetailing.com",
+          subject: "Quote Modified by Admin",
+          firstName: "Admin",
+          details: {
+            ...updatedData,
+            client_email: selectedQuote.client_email,
+            client_phone: selectedQuote.client_phone,
+          },
+        }),
+      });
+
+      if (!adminResponse.ok) {
+        const adminErrorData = await adminResponse.json();
+        console.error("Error sending admin email:", adminErrorData.error);
+      }
+
+      // Send email to client
+      const clientResponse = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: selectedQuote.client_email,
+          subject: "Your Quote Has Been Updated",
+          firstName: selectedQuote.client_name,
+          details: updatedData,
+        }),
+      });
+
+      if (!clientResponse.ok) {
+        const clientErrorData = await clientResponse.json();
+        console.error("Error sending client email:", clientErrorData.error);
+      }
+
+      alert("Quote updated successfully and emails sent!");
       setIsEditing(false);
     }
   };
@@ -151,18 +196,18 @@ const AdminModifyQuote = () => {
               </div>
 
               <DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <span>
-      <Button variant="ghost" className="text-lg font-semibold">
-        •••
-      </Button>
-    </span>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent>
-    <DropdownMenuItem onClick={() => handleEdit(quote)}>Edit</DropdownMenuItem>
-    <DropdownMenuItem onClick={() => handleDelete(quote.id)}>Delete</DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <span>
+                    <Button variant="ghost" className="text-lg font-semibold">
+                      •••
+                    </Button>
+                  </span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleEdit(quote)}>Edit</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDelete(quote.id)}>Delete</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ))}
         </div>

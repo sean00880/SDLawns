@@ -164,40 +164,71 @@ const [phone, setPhone] = useState<string>("");
       client_phone: phone,
     };
   
-    const { error } = await supabase.from("quote_requests").insert([data]);
+    try {
+      // Insert the data into the Supabase table
+      const { error } = await supabase.from("quote_requests").insert([data]);
   
-    if (error) {
-      console.error("Error submitting quote request:", error);
-      alert("An error occurred while submitting your quote.");
-    } else {
-      alert("Quote request submitted successfully!");
+      if (error) {
+        console.error("Error submitting quote request to Supabase:", error);
+        alert("An error occurred while submitting your quote.");
+        return;
+      }
   
-      const adminEmail = "service@nolimitsmobiledetailing.com";
-  
-      // Send email to admin
-      await resend.emails.send({
-        from: "service@nolimitsmobiledetailing.com",
-        to: adminEmail,
-        subject: "New Quote Request Submitted",
-        react: <EmailTemplate firstName="Admin" details={data} />,
+      // Send email to admin using the backend API
+      const adminResponse = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: "service@nolimitsmobiledetailing.com",
+          subject: "New Quote Request Submitted",
+          firstName: "Admin",
+          details: data,
+        }),
       });
   
-      // Send confirmation email to user
-      await resend.emails.send({
-        from: "service@nolimitsmobiledetailing.com",
-        to: email,
-        subject: "Your Quote Request Confirmation",
-        react: <EmailTemplate firstName={name} details={data} />,
+      if (!adminResponse.ok) {
+        const adminErrorData = await adminResponse.json();
+        throw new Error(adminErrorData.error || "Failed to send admin email");
+      }
+  
+      // Send confirmation email to the client
+      const clientResponse = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: email,
+          subject: "Your Quote Request Confirmation",
+          firstName: name,
+          details: data,
+        }),
       });
   
+      if (!clientResponse.ok) {
+        const clientErrorData = await clientResponse.json();
+        throw new Error(clientErrorData.error || "Failed to send client email");
+      }
+  
+      alert("Quote request submitted successfully, and emails sent!");
+  
+      // Reset form fields
       setSelectedServices([]);
       setSelectedDate(today(getLocalTimeZone()));
       setVehicleSize("sedan");
       setName("");
       setEmail("");
       setPhone("");
+    } catch (err) {
+      console.error("Error submitting quote or sending email:", err);
+      alert("An error occurred. Please try again.");
     }
   };
+  
+  
+  
 
     const CustomRadio: React.FC<React.ComponentProps<typeof Radio>> = (props) => {
       const { children, ...otherProps } = props;
