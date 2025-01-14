@@ -11,6 +11,11 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+body, html, #__next {
+  overflow: visible !important;
+}
+
+
 :root {
   --color-dark-green: #004d40;
   --color-dark-green-hover: #00332b;
@@ -177,4 +182,16 @@
 
 .calendar{
   border-radius: 0px 0px 10px 10px; 
+}
+
+
+
+.modal-container {
+  border: 2px solid red;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 9999;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

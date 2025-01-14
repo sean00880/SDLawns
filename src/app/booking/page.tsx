@@ -139,24 +139,27 @@ function BookingContent() {
 
   const handleSubmit = async () => {
     const data = {
-      vehicleSize,
-      services: selectedServices,
-      date: selectedDate.toString(),
-      total,
+      vehicle_size: vehicleSize, // Maps to the schema
+      services: JSON.stringify(selectedServices), // Convert to JSON
+      date: selectedDate.toString(), // Ensure correct date format
+      total: total, // Matches the schema
     };
-
+  
     // Insert into Supabase
     const { error } = await supabase.from("quote_requests").insert([data]);
-
+  
     if (error) {
       console.error("Error submitting quote request:", error);
       alert("An error occurred while submitting your quote.");
     } else {
       alert("Quote request submitted successfully!");
+      // Reset form fields
       setSelectedServices([]);
-      setSelectedDate(today(getLocalTimeZone())); // Reset the form
+      setSelectedDate(today(getLocalTimeZone()));
+      setVehicleSize("sedan");
     }
   };
+  
   
     const CustomRadio: React.FC<React.ComponentProps<typeof Radio>> = (props) => {
       const { children, ...otherProps } = props;
@@ -375,13 +378,12 @@ function BookingContent() {
           </div>
 
           
-          <section className="bg-black flex flex-col justify-center">
-            <h2 className="text-xl text-red font-semibold mb-4">Select a Date</h2>
-            <Calendar className="bg-white text-white"
+          <section className="bg-black flex flex-col rounded-t-sm my-2" >
+            <h2 className="text-xl text-red font-semibold mb-4 p-2">Select a Date</h2>
+            <Calendar className="bg-black  text-white rounded-b-sm"
         aria-label="Date (Unavailable)"
-
         classNames={{
-          content: "w-full  calendar",
+          content: "flex flex-col calendar justify-center items-center",
         }}
         focusedValue={value}
         nextButtonProps={{
@@ -393,7 +395,7 @@ function BookingContent() {
         topContent={
           <ButtonGroup
             fullWidth
-            className="px-3 pb-2 pt-3 bg-black [&>button]:text-default-500 [&>button]:border-default-200/60"
+            className="px-3 pb-2 pt-3 bg-black rounded-b-sm [&>button]:text-default-500 [&>button]:border-default-200/60"
             radius="full"
             size="sm"
             variant="bordered"
