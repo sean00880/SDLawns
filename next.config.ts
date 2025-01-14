@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  env: {
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+  },
+
   // Optionally, you can ignore TypeScript errors as well, though it's not recommended:
   // typescript: {
   //   ignoreBuildErrors: true,
