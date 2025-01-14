@@ -4,25 +4,22 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/components/lib/supaBaseClient";
 import { exteriorServices, interiorServices } from "../app/data/servicesData";
 import { packagesData } from "../app/data/packagesData";
-import {
-  Button,
-} from "@/components/components/ui/button";
-
+import { Button } from "@/components/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/components/ui/dropdown-menu";
-
 import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/components/ui/tooltip";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/components/ui/dialog";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/components/ui/dialog";
 import { Calendar } from "@nextui-org/react";
-import { today, getLocalTimeZone, startOfWeek, startOfMonth } from "@internationalized/date";
+import { today, getLocalTimeZone } from "@internationalized/date";
 
 type VehicleType = "sedan" | "suvTruck" | "van";
 
@@ -35,7 +32,6 @@ const AdminModifyQuote = () => {
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [calendarValue, setCalendarValue] = useState(today(getLocalTimeZone()));
 
   useEffect(() => {
     const fetchQuotes = async () => {
@@ -59,7 +55,6 @@ const AdminModifyQuote = () => {
     setVehicleSize(quote.vehicle_size);
     setSelectedServices(quote.services || []);
     setSelectedDate(today(getLocalTimeZone()));
-    setCalendarValue(today(getLocalTimeZone()));
     setTotal(quote.total);
     setIsEditing(true);
   };
@@ -78,6 +73,33 @@ const AdminModifyQuote = () => {
     }
   };
 
+  const computeTotal = () => {
+    const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
+    let sum = 0;
+
+    for (const item of allItems) {
+      if (selectedServices.includes(item.name)) {
+        switch (vehicleSize) {
+          case "suvTruck":
+            sum += item.suvTruckPrice;
+            break;
+          case "van":
+            sum += item.vanPrice;
+            break;
+          default:
+            sum += item.sedanPrice;
+            break;
+        }
+      }
+    }
+
+    setTotal(sum);
+  };
+
+  useEffect(() => {
+    computeTotal();
+  }, [vehicleSize, selectedServices]);
+
   const handleUpdateQuote = async () => {
     setLoading(true);
     const { error } = await supabase
@@ -85,7 +107,7 @@ const AdminModifyQuote = () => {
       .update({
         vehicle_size: vehicleSize,
         services: selectedServices,
-        date: calendarValue.toString(),
+        date: selectedDate.toString(),
         total,
       })
       .eq("id", selectedQuote.id);
@@ -99,7 +121,7 @@ const AdminModifyQuote = () => {
       setQuotes((prev) =>
         prev.map((quote) =>
           quote.id === selectedQuote.id
-            ? { ...quote, vehicle_size: vehicleSize, services: selectedServices, date: calendarValue.toString(), total }
+            ? { ...quote, vehicle_size: vehicleSize, services: selectedServices, date: selectedDate.toString(), total }
             : quote
         )
       );
@@ -129,14 +151,18 @@ const AdminModifyQuote = () => {
               </div>
 
               <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Button variant="ghost" className="text-lg font-semibold">•••</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => handleEdit(quote)}>Edit</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDelete(quote.id)}>Delete</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <span>
+      <Button variant="ghost" className="text-lg font-semibold">
+        •••
+      </Button>
+    </span>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem onClick={() => handleEdit(quote)}>Edit</DropdownMenuItem>
+    <DropdownMenuItem onClick={() => handleDelete(quote.id)}>Delete</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
             </div>
           ))}
         </div>
@@ -147,17 +173,17 @@ const AdminModifyQuote = () => {
           <DialogHeader>
             <DialogTitle>Edit Quote</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 ">
+          <div className="space-y-4">
             <div>
               <label className="block font-medium mb-2">Vehicle Size</label>
               <select
                 value={vehicleSize}
                 onChange={(e) => setVehicleSize(e.target.value as VehicleType)}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-black"
               >
-                <option value="sedan">Sedan</option>
-                <option value="suvTruck">SUV/Truck</option>
-                <option value="van">Van</option>
+                <option value="sedan" className="bg-black">Sedan</option>
+                <option value="suvTruck" className="bg-black">SUV/Truck</option>
+                <option value="van" className="bg-black">Van</option>
               </select>
             </div>
             <div>
@@ -184,18 +210,18 @@ const AdminModifyQuote = () => {
             <div>
               <label className="block font-medium mb-2">Date</label>
               <Calendar
-                value={calendarValue}
-                onChange={setCalendarValue}
-                className="bg-black flex justify-center items-center"
+                value={selectedDate}
+                onChange={setSelectedDate}
+                className="bg-black text-white"
               />
             </div>
             <div>
-              <label className="block font-medium mb-2">Total</label>
+              <label className="block font-medium mb-2">Total ($)</label>
               <input
                 type="number"
                 value={total}
-                readOnly
-                className="w-full p-2 border rounded bg-gray-100"
+                onChange={(e) => setTotal(Number(e.target.value))}
+                className="w-full p-2 border rounded bg-gray-100 text-green-700"
               />
             </div>
           </div>

@@ -8,6 +8,7 @@ import { Calendar, Radio, RadioGroup, Button, ButtonGroup, cn } from "@nextui-or
 import { today, getLocalTimeZone, isWeekend, startOfWeek, startOfMonth } from "@internationalized/date";
 import { supabase } from "@/components/lib/supaBaseClient";
 import { useLocale } from "@react-aria/i18n";
+import nodemailer from "nodemailer";
 
 type VehicleType = "sedan" | "suvTruck" | "van";
 
@@ -28,6 +29,24 @@ const discountCombos = [
  Inside the fallback, you could show a spinner or skeleton. 
  The <BookingContent> does the actual logic with useSearchParams().
 */
+
+export async function sendNotificationEmail({ to, subject, body }: { to: string; subject: string; body: string }) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail", // Replace with your email service
+    auth: {
+      user: "your-email@gmail.com", // Replace with your email
+      pass: "your-password", // Replace with your email password
+    },
+  });
+
+  await transporter.sendMail({
+    from: "your-email@gmail.com",
+    to,
+    subject,
+    text: body,
+  });
+}
+
 export default function BookingPage() {
   return (
     <Suspense fallback={<div className="p-6 text-white">Loading booking form...</div>}>
@@ -44,6 +63,9 @@ function BookingContent() {
   const [vehicleSize, setVehicleSize] = useState<VehicleType>("sedan");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [name, setName] = useState<string>("");
+const [email, setEmail] = useState<string>("");
+const [phone, setPhone] = useState<string>("");
     const [selectedDate, setSelectedDate] = useState(today(getLocalTimeZone()));
     const searchParams = useSearchParams();
     let defaultDate = today(getLocalTimeZone());
@@ -138,11 +160,19 @@ function BookingContent() {
   }
 
   const handleSubmit = async () => {
+    if (!name || !email || !phone) {
+      alert("Please fill out all the required fields (Name, Email, Phone).");
+      return;
+    }
+  
     const data = {
-      vehicle_size: vehicleSize, // Maps to the schema
-      services: JSON.stringify(selectedServices), // Convert to JSON
-      date: selectedDate.toString(), // Ensure correct date format
-      total: total, // Matches the schema
+      vehicle_size: vehicleSize,
+      services: JSON.stringify(selectedServices),
+      date: selectedDate.toString(),
+      total,
+      client_name: name,
+      client_email: email,
+      client_phone: phone,
     };
   
     // Insert into Supabase
@@ -153,12 +183,35 @@ function BookingContent() {
       alert("An error occurred while submitting your quote.");
     } else {
       alert("Quote request submitted successfully!");
+  
+      // Send email notifications
+      const adminEmail = "service@sitedominion.com"; // Replace with your admin email
+      await sendNotificationEmail({
+        to: adminEmail,
+        subject: "New Quote Request Submitted",
+        body: `A new quote request has been submitted. Details:\n\n${JSON.stringify(data, null, 2)}`,
+      });
+  
+      await sendNotificationEmail({
+        to: email,
+        subject: "Your Quote Request Confirmation",
+        body: `Thank you, ${name}, for submitting your quote request. Here are the details:\n\n${JSON.stringify(
+          data,
+          null,
+          2
+        )}`,
+      });
+  
       // Reset form fields
       setSelectedServices([]);
       setSelectedDate(today(getLocalTimeZone()));
       setVehicleSize("sedan");
+      setName("");
+      setEmail("");
+      setPhone("");
     }
   };
+  
   
   
     const CustomRadio: React.FC<React.ComponentProps<typeof Radio>> = (props) => {
@@ -330,6 +383,41 @@ function BookingContent() {
               })}
             </div>
           </section>
+          <section>
+  <h2 className="text-xl font-semibold">Contact Information:</h2>
+  <div className="space-y-4 text-white">
+    <div>
+      <label className="block font-medium mb-1">Name:</label>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full p-2 border rounded bg-black text-white"
+        placeholder="Enter your name"
+      />
+    </div>
+    <div>
+      <label className="block font-medium mb-1">Email:</label>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full p-2 border rounded bg-black text-white"
+        placeholder="Enter your email"
+      />
+    </div>
+    <div>
+      <label className="block font-medium mb-1">Phone Number:</label>
+      <input
+        type="tel"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        className="w-full p-2 border rounded bg-black text-white"
+        placeholder="Enter your phone number"
+      />
+    </div>
+  </div>
+</section>
         </div>
 
         {/* RIGHT: SUMMARY */}
@@ -410,6 +498,8 @@ function BookingContent() {
         onFocusChange={setValue}
       />
           </section>
+ 
+
           <button className="w-full bg-green-600 hover:bg-green-700 py-2 px-4 rounded" onClick={handleSubmit}>
             Submit Quote
           </button>
