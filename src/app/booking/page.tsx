@@ -11,7 +11,7 @@ import { useLocale } from "@react-aria/i18n";
 import { Resend } from "resend";
 import { EmailTemplate } from "@/components/components/email-template";
 
-const resend = new Resend(process.env.NEXT_PUBLIC_RESEND_API_KEY); // Set RESEND_API_KEY in your .env.local file
+const resend = new Resend(process.env.RESEND_API_KEY); // Set RESEND_API_KEY in your .env.local file
 
 
 type VehicleType = "sedan" | "suvTruck" | "van";
