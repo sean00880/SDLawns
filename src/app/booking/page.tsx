@@ -128,19 +128,6 @@ function BookingContent() {
     }
     
 
-    const generateBookingURL = (packageId: string) => {
-      const params = new URLSearchParams({
-          packages: JSON.stringify([packageId]),
-          frequency,
-      }).toString();
-      return `/booking?${params}`;
-    };
-    
-  
-    
-    
-  
-
   // On mount, read ?service= from the URL and pre-select if found
   useEffect(() => {
     const servicesParam = searchParams?.get("services");
