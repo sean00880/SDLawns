@@ -663,17 +663,18 @@ function BookingContent() {
     nextButtonProps={{ variant: "bordered" }}
     prevButtonProps={{ variant: "bordered" }}
     topContent={
-      <ButtonGroup>
-        <Button onPress={() => setSelectedDate(today(getLocalTimeZone()))}>
-          Today
-        </Button>
-        <Button onPress={() => setSelectedDate(startOfWeek(selectedDate))}>
-          Next Week
-        </Button>
-        <Button onPress={() => setSelectedDate(startOfMonth(selectedDate))}>
-          Next Month
-        </Button>
-      </ButtonGroup>
+<ButtonGroup>
+  <Button onPress={() => setSelectedDate(today(getLocalTimeZone()))}>
+    Today
+  </Button>
+  <Button onPress={() => setSelectedDate(startOfWeek(selectedDate, locale))}>
+    Next Week
+  </Button>
+  <Button onPress={() => setSelectedDate(startOfMonth(selectedDate))}>
+    Next Month
+  </Button>
+</ButtonGroup>
+
     }
   />
 
