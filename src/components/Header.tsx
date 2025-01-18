@@ -294,7 +294,10 @@ const Header: React.FC = () => {
     </g>
     <path fill="#fcfdff" d="m 102,45 h 276 c 23.268,0 42,18.732 42,42 0,23.268 -18.732,42 -42,42 H 102 C 78.732002,129 60,110.268 60,87 60,63.732 78.732002,45 102,45 Z" />
   </svg>
+  <Link href="/booking">
   <button className="button">Request Quote</button>
+</Link>
+
 </div>
   </ul>
 </nav>
