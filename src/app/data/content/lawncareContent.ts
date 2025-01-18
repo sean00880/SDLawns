@@ -26,6 +26,8 @@ export type ServiceContent = {
   testimonial?: Testimonial;
   images?: Images;
   faq?: FAQ[];
+  excerpt?: string; // Short summary of the service
+  listItems?: string[]; // List of key features or benefits
 };
 
 export const lawncareContent: Record<string, ServiceContent> = {
@@ -34,6 +36,12 @@ export const lawncareContent: Record<string, ServiceContent> = {
     description: `
       A beautifully maintained lawn is the heart of any outdoor space. With our **Basic Lawn Mowing Service**, you’ll enjoy a lush, healthy lawn that enhances the beauty of your property. We go beyond just cutting grass—we’re here to elevate your lawn care experience to the next level. Whether you need weekly upkeep or one-time service, our professional team ensures your lawn always looks its best.
     `,
+    excerpt: "Experience a beautifully maintained lawn with our expert mowing service.",
+    listItems: [
+      "Professional lawn mowing for all property sizes",
+      "Edging and trimming for a polished look",
+      "Grass clippings cleared for a pristine finish",
+    ],
     sections: [
       {
         title: "Included Services",
@@ -70,6 +78,12 @@ export const lawncareContent: Record<string, ServiceContent> = {
     description: `
       Take the guesswork out of maintaining a lush and inviting lawn with our **Lawn Care Comprehensive Package**. Perfect for homeowners seeking an all-in-one solution, this package brings together a wide array of professional lawn care services designed to keep your yard in pristine condition year-round.
     `,
+    excerpt: "A complete lawn care solution for year-round beauty and health.",
+    listItems: [
+      "Comprehensive lawn maintenance services",
+      "Cost-effective bundled solutions",
+      "Tailored scheduling for optimal results",
+    ],
     sections: [
       {
         title: "Included Services",
@@ -110,3 +124,4 @@ export const lawncareContent: Record<string, ServiceContent> = {
     ],
   },
 };
+

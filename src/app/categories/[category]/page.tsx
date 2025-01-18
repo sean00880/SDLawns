@@ -12,12 +12,10 @@ import { lawncareContent } from "../../data/content/lawncareContent";
 interface Service {
   id: string;
   name: string;
-  description: string[]; // Adjusted to align with `servicesData`
+  description: string[];
   img: string;
   pricing: Record<string, number>;
 }
-
-
 
 interface Package {
   id: string;
@@ -32,7 +30,6 @@ interface CategoryData {
   packages: Package[];
 }
 
-
 const categoryData: Record<string, CategoryData> = {
   lawncare: lawncareServices,
   pressurewashing: pressureWashingServices,
@@ -40,24 +37,21 @@ const categoryData: Record<string, CategoryData> = {
   gardening: gardeningServices,
 };
 
-
-
 const categoryDescriptions: Record<string, string> = {
   lawncare: `Keep your lawn pristine and lush with our expert lawn care services in San Diego.`,
-  pressureWashing: `Revitalize your property's exterior with our premium pressure washing services.`,
-  dumpRuns: `Effortlessly clear out unwanted items with our dump run services in San Diego.`,
+  pressurewashing: `Revitalize your property's exterior with our premium pressure washing services.`,
+  dumpruns: `Effortlessly clear out unwanted items with our dump run services in San Diego.`,
   gardening: `Transform your outdoor spaces with our gardening services in San Diego.`,
 };
 
-export default function ServiceCategoryPage({ params }: { params: { category: string } }) {
+export default async function ServiceCategoryPage({ params }: { params: Promise<{ category: string }> }) {
+  const { category: categoryFromParams } = await params;
+
   const [category, setCategory] = useState<string | null>(null);
   const [categoryServices, setCategoryServices] = useState<CategoryData | null>(null);
 
   useEffect(() => {
-    const normalizedCategory = params.category.replace(/-/g, "").toLowerCase();
-    console.log("Normalized Category:", normalizedCategory);
-    console.log("Available Categories:", Object.keys(categoryData));
-  
+    const normalizedCategory = categoryFromParams.replace(/-/g, "").toLowerCase();
     if (normalizedCategory in categoryData) {
       setCategory(normalizedCategory);
       setCategoryServices(categoryData[normalizedCategory]);
@@ -65,7 +59,7 @@ export default function ServiceCategoryPage({ params }: { params: { category: st
       setCategory(null);
       setCategoryServices(null);
     }
-  }, [params]);
+  }, [categoryFromParams]);
   
   
   
@@ -154,50 +148,57 @@ export default function ServiceCategoryPage({ params }: { params: { category: st
 
         {/* Detailed Rows for Services */}
         {categoryServices.services.map((service, index) => {
-          const { excerpt, listItems } = generateExcerptAndList(
-            lawncareContent[service.id as keyof typeof lawncareContent]
-          );
-          const isSelected = selectedServices.includes(service.id);
-          return (
-            <div
-              key={service.id}
-              className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-6 mb-12`}
-            >
-              <img
-                src={service.img}
-                alt={service.name}
-                className="w-full lg:w-1/2 h-60 object-cover rounded-lg shadow-md"
-              />
-              <div className="lg:w-1/2">
-                <h2 className="text-2xl font-bold text-green-700 mb-4">{service.name}</h2>
-                <p className="text-gray-700 mb-4">{excerpt}</p>
-                <ul className="list-disc pl-5 text-gray-700 mb-4">
-                  {listItems.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-                <div className="flex items-center gap-4">
-                  <a
-                    href={`/services/${service.id}`}
-                    className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                  >
-                    Read More
-                  </a>
-                  <button
-                    className={`py-2 px-4 rounded-lg ${
-                      isSelected
-                        ? "bg-blue-500 text-white hover:bg-blue-600"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    } transition-all`}
-                    onClick={() => handleServiceToggle(service.id)}
-                  >
-                    {isSelected ? "Selected" : "Select"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+  const content = lawncareContent[service.id as keyof typeof lawncareContent];
+  const { excerpt, listItems } = content
+    ? {
+        excerpt: content.excerpt || "Description not available.",
+        listItems: content.listItems || [],
+      }
+    : { excerpt: "Description not available.", listItems: [] };
+
+  const isSelected = selectedServices.includes(service.id);
+
+  return (
+    <div
+      key={service.id}
+      className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-6 mb-12`}
+    >
+      <img
+        src={service.img}
+        alt={service.name}
+        className="w-full lg:w-1/2 h-60 object-cover rounded-lg shadow-md"
+      />
+      <div className="lg:w-1/2">
+        <h2 className="text-2xl font-bold text-green-700 mb-4">{service.name}</h2>
+        <p className="text-gray-700 mb-4">{excerpt}</p>
+        <ul className="list-disc pl-5 text-gray-700 mb-4">
+          {listItems.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+        <div className="flex items-center gap-4">
+          <a
+            href={`/services/${service.id}`}
+            className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600"
+          >
+            Read More
+          </a>
+          <button
+            className={`py-2 px-4 rounded-lg ${
+              isSelected
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            } transition-all`}
+            onClick={() => handleServiceToggle(service.id)}
+          >
+            {isSelected ? "Selected" : "Select"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+})}
+
 
         {/* Packages Section */}
         <h2 className="text-2xl font-semibold text-green-700 mt-12 mb-6">Available Packages</h2>
@@ -300,17 +301,18 @@ export default function ServiceCategoryPage({ params }: { params: { category: st
                   : ""
               }`}
             >
-              <input
-                type="checkbox"
-                disabled={
-                  selectedPackage &&
-                  categoryServices.packages
-                    .find((pkg) => pkg.id === selectedPackage)
-                    ?.servicesIncluded.includes(service.id)
-                }
-                checked={selectedServices.includes(service.id)}
-                onChange={() => handleServiceToggle(service.id)}
-              />
+             <input
+  type="checkbox"
+  disabled={
+    !!selectedPackage && // Ensure this is a boolean
+    !!categoryServices.packages
+      .find((pkg) => pkg.id === selectedPackage)
+      ?.servicesIncluded.includes(service.id)
+  }
+  checked={selectedServices.includes(service.id)}
+  onChange={() => handleServiceToggle(service.id)}
+/>
+
               <span>{service.name} (${service.pricing[selectedFrequency]})</span>
             </label>
           ))}
