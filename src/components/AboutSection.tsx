@@ -25,13 +25,13 @@ export function AboutSection() {
       name: "Staff 2",
       role: "Horticulturist",
       image: "/images/MYLES.png",
-      bio: "Jane specializes in sustainable gardening practices, ensuring every plant thrives in Southern California's environment.",
+      bio: "Matthew specializes in sustainable gardening practices, ensuring every plant thrives in Southern California's environment.",
     },
     {
       name: "Staff 3",
       role: "Construction Manager",
       image: "/images/ETC.png",
-      bio: "Michael oversees construction projects, ensuring high-quality craftsmanship and timely delivery for all clients.",
+      bio: "Michelle oversees construction projects, ensuring high-quality craftsmanship and timely delivery for all clients.",
     },
   ];
 
