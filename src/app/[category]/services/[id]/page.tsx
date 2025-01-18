@@ -37,7 +37,8 @@ export default function ServiceDetailPage() {
   }
 
   // Content sections
-  const sections = content.trim().split("##").filter(Boolean);
+  const sections = content.sections || [];
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -53,13 +54,12 @@ export default function ServiceDetailPage() {
 
       <main className="max-w-6xl mx-auto py-12 px-6">
         {sections.map((section, index) => (
-          <div key={index} className={`mb-16 ${index % 2 === 0 ? "bg-white" : "bg-gray-100"} p-6 rounded-lg shadow-md`}>
-            <h2 className="text-3xl font-semibold text-green-700 mb-4">
-              {section.split("\n")[0].trim()}
-            </h2>
-            <p className="text-gray-700 leading-relaxed text-lg">
-              {section.split("\n").slice(1).join("\n").trim()}
-            </p>
+          <div
+            key={index}
+            className={`mb-16 ${index % 2 === 0 ? "bg-white" : "bg-gray-100"} p-6 rounded-lg shadow-md`}
+          >
+            <h2 className="text-3xl font-semibold text-green-700 mb-4">{section.title}</h2>
+            <p className="text-gray-700 leading-relaxed text-lg">{section.description}</p>
           </div>
         ))}
 
