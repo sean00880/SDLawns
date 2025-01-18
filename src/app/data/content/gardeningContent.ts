@@ -35,7 +35,7 @@ export const gardeningContent = {
           #### Step 4: Post-Planting Care
           We water, mulch, and provide care instructions to maintain the beauty of your garden.
         `,
-        image: "garden.png",
+        image: "planting2.jpg",
       },
     ],
     testimonial: {

@@ -67,7 +67,7 @@ export const dumpRunContent = {
           - **Time Savings**: Let us handle the cleanup while you focus on your project.
           - **Eco-Friendly Practices**: Responsible disposal of construction materials.
         `,
-        image: "dump2.png",
+        image: "constructiondump.png",
       },
       {
         title: "Types of Debris We Remove",
@@ -77,7 +77,7 @@ export const dumpRunContent = {
           - Metal scraps, pipes, and wiring.
           - Flooring materials and roofing debris.
         `,
-        image: "debris-types.jpg",
+        image: "constructionjunk.webp",
       },
     ],
     testimonial: {
@@ -115,7 +115,7 @@ export const dumpRunContent = {
           - **Construction Debris Removal**: Heavy-duty cleanup for renovation waste.
           - **Eco-Friendly Disposal**: Responsible recycling and donation of items.
         `,
-        image: "complete-package.jpg",
+        image: "debris.jpg",
       },
       {
         title: "Our Process",
@@ -132,7 +132,7 @@ export const dumpRunContent = {
           #### Step 4: Final Touches
           We clean the area, leaving your property neat and organized.
         `,
-        image: "junk-removal-process.jpg",
+        image: "debris.webp",
       },
     ],
     testimonial: {
