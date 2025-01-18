@@ -107,18 +107,23 @@ export function ServicesSection({ category, frequency }: ServicesSectionProps) {
                 ${srv.pricing[frequency]} / {frequency.replace("-", " ")}
               </div>
             </div>
+            
+    {/* Service Details */}
+<div className="p-4">
+  <h3 className="text-lg font-semibold text-gray-800 mb-2">{srv.name}</h3>
+  <CardContent className="space-y-2">
+    {srv.description.map((line, idx) => (
+      <p
+        key={idx}
+        className="text-sm text-gray-700 leading-relaxed"
+        dangerouslySetInnerHTML={{
+          __html: line.replace(/\*\*(.*?)\*\*/g, "<b><i>$1</i></b>"),
+        }}
+      ></p>
+    ))}
+  </CardContent>
+</div>
 
-            {/* Service Details */}
-            <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{srv.name}</h3>
-              <CardContent className="space-y-2">
-                {srv.description.map((line, idx) => (
-                  <p key={idx} className="text-sm text-gray-700 leading-relaxed">
-                    {line}
-                  </p>
-                ))}
-              </CardContent>
-            </div>
 
             {/* CTA: Book Now and Read More */}
             <div className="p-4 mt-auto flex justify-between items-center">

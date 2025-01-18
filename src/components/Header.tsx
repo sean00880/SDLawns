@@ -145,7 +145,7 @@ const Header: React.FC = () => {
                   />
                   <h3 className="font-bold text-black text-center text-lg mb-2">
                     <Link
-                      href={`/services/${category.toLowerCase()}`}
+                      href={`/categories/${category.toLowerCase()}`}
                       className="text-green-600 hover:underline"
                       onClick={() => {
                         setMegaMenuOpen(false);
@@ -211,7 +211,7 @@ const Header: React.FC = () => {
                         </div>
                         <div className="mt-1">
                           <Link
-                            href={`/booking?services=%5B%22${pkg.id}%22%5D&frequency=${selectedFrequency}`}
+                            href={`/booking?packages=%5B%22${pkg.id}%22%5D&frequency=${selectedFrequency}`}
                             className="text-green-600 hover:underline text-sm"
                             onClick={() => {
                               setMegaMenuOpen(false);
