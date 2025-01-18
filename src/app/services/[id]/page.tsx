@@ -5,6 +5,9 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { lawncareContent } from "../../data/content/lawncareContent";
+import { dumpRunContent } from "../../data/content/dumpRunContent";
+import { pressureWashingContent } from "../../data/content/pressureWashingContent";
+import { gardeningContent } from "../../data/content/gardeningContent";
 import {
   Box,
   Typography,
@@ -46,7 +49,14 @@ type ServiceContent = {
 export default function ServiceDetailPage() {
   const params = useParams();
   const id = params?.id as string;
-  const content: ServiceContent | null = lawncareContent[id] || null; // Ensure `content
+
+  const content: ServiceContent | null =
+  lawncareContent[id as keyof typeof lawncareContent] ||
+  dumpRunContent[id as keyof typeof dumpRunContent] ||
+  pressureWashingContent[id as keyof typeof pressureWashingContent] ||
+  gardeningContent[id as keyof typeof gardeningContent] ||
+  null;
+
 
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
@@ -75,7 +85,7 @@ export default function ServiceDetailPage() {
     const items = description
       .split("\n")
       .map((line) => line.trim())
-      .filter((line) => line.startsWith("-")); // Only process valid list items
+      .filter((line) => line.startsWith("-"));
 
     return (
       <List>
@@ -151,10 +161,10 @@ export default function ServiceDetailPage() {
         {/* Testimonial Section */}
         {content.testimonial && (
           <Card sx={{ p: 4, textAlign: "center", boxShadow: 3, mb: 8 }}>
-            <Typography variant="body1" fontStyle="italic" color="textSecondary"  sx={{ color: "#2e7d32" }}>
+            <Typography variant="body1" fontStyle="italic" color="textSecondary" sx={{ color: "#2e7d32" }}>
               "{content.testimonial.text}"
             </Typography>
-            <Typography variant="subtitle1" color="primary" mt={2}  sx={{ color: "#2e7d32" }}>
+            <Typography variant="subtitle1" color="primary" mt={2} sx={{ color: "#2e7d32" }}>
               - {content.testimonial.author}
             </Typography>
           </Card>
@@ -187,9 +197,7 @@ export default function ServiceDetailPage() {
         )}
 
         {/* FAQ Section */}
-              {/* FAQ Section */}
-               {/* FAQ Section */}
-               {content.faq && content.faq.length > 0 && (
+        {content.faq && content.faq.length > 0 && (
           <Box sx={{ height: "400px", overflow: "hidden", position: "relative" }}>
             <Typography variant="h4" color="primary" gutterBottom>
               Frequently Asked Questions
@@ -231,8 +239,8 @@ export default function ServiceDetailPage() {
                   </AccordionSummary>
                   <AccordionDetails
                     sx={{
-                      maxHeight: "200px", // Ensure max height for the details section
-                      overflowY: "auto", // Allow scrolling for long content
+                      maxHeight: "200px",
+                      overflowY: "auto",
                       transition: "all 0.3s ease-in-out",
                     }}
                   >
@@ -243,8 +251,6 @@ export default function ServiceDetailPage() {
             </Box>
           </Box>
         )}
-
-
       </Box>
     </Box>
   );
