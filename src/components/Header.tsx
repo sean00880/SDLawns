@@ -77,8 +77,8 @@ const Header: React.FC = () => {
           <Image
             src="/images/logoSD.png"
             alt="San Diego Custom Backyards Logo"
-            width={300}
-            height={90}
+            width={240}
+            height={60}
             className="object-contain rounded-md"
             priority
           />
