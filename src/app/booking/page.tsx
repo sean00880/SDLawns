@@ -127,6 +127,17 @@ function BookingContent() {
       return `${name.toLowerCase().replace(/\s+/g, "-")}-${frequency}`;
     }
     
+
+    const generateBookingURL = (packageId: string) => {
+      const params = new URLSearchParams({
+          packages: JSON.stringify([packageId]),
+          frequency,
+      }).toString();
+      return `/booking?${params}`;
+    };
+    
+  
+    
     
   
 
@@ -160,16 +171,18 @@ function BookingContent() {
   
         // Determine the category based on the first package
         const matchedCategory = Object.entries(categories).find(([_, category]) =>
-          category.packages.some((pkg) => packages.includes(pkg.name))
+          category.packages.some((pkg) => packages.includes(pkg.id))
         );
+        
         if (matchedCategory) setActiveCategory(matchedCategory[0] as Category);
   
         // Include services from selected packages
-        const includedServices = packages.flatMap((pkgName) =>
+        const includedServices = packages.flatMap((pkgId) =>
           Object.values(categories)
             .flatMap((category) => category.packages)
-            .find((pkg) => pkg.name === pkgName)?.servicesIncluded || []
+            .find((pkg) => pkg.id === pkgId)?.servicesIncluded || []
         );
+        
         setSelectedServices((prev) => [...new Set([...prev, ...includedServices])]);
       } catch {
         console.error("Invalid packages parameter");
@@ -187,6 +200,15 @@ function BookingContent() {
   
 
   function handleServiceToggle(serviceId: string) {
+    // Prevent toggling if the service is included in a selected package
+    const isIncludedInPackage = selectedPackages.some((pkgId) =>
+      categories[activeCategory].packages
+        .find((pkg) => pkg.id === pkgId)
+        ?.servicesIncluded.includes(serviceId)
+    );
+  
+    if (isIncludedInPackage) return;
+  
     setSelectedServices((prev) =>
       prev.includes(serviceId)
         ? prev.filter((id) => id !== serviceId) // Remove if already selected
@@ -195,22 +217,40 @@ function BookingContent() {
   }
   
   
+  
 
-  function handlePackageToggle(packageName: string) {
-    const selectedPackage = categories[activeCategory].packages.find((pkg) => pkg.name === packageName);
+  function handlePackageToggle(packageId: string) {
+    const packageToToggle = Object.values(categories)
+      .flatMap((category) => category.packages)
+      .find((pkg) => pkg.id === packageId);
   
-    if (!selectedPackage) return;
+    if (!packageToToggle) return;
   
-    const associatedServices = selectedPackage.servicesIncluded;
+    // Toggle the package selection
+    setSelectedPackages((prevPackages) => {
+      const isAlreadySelected = prevPackages.includes(packageId);
+      if (isAlreadySelected) {
+        return prevPackages.filter((id) => id !== packageId);
+      } else {
+        return [...prevPackages, packageId];
+      }
+    });
   
-    if (selectedPackages.includes(packageName)) {
-      setSelectedPackages((prev) => prev.filter((pkg) => pkg !== packageName));
-      setSelectedServices((prev) => prev.filter((srv) => !associatedServices.includes(srv)));
-    } else {
-      setSelectedPackages((prev) => [...prev, packageName]);
-      setSelectedServices((prev) => [...new Set([...prev, ...associatedServices])]);
-    }
+    // Add or remove the services included in the package
+    setSelectedServices((prevServices) => {
+      const includedServices = packageToToggle.servicesIncluded;
+      const isAlreadySelected = selectedPackages.includes(packageId);
+  
+      if (isAlreadySelected) {
+        // Remove services included in the deselected package
+        return prevServices.filter((serviceId) => !includedServices.includes(serviceId));
+      } else {
+        // Add services included in the newly selected package
+        return [...new Set([...prevServices, ...includedServices])];
+      }
+    });
   }
+  
   
   
   
@@ -261,24 +301,25 @@ function BookingContent() {
   }
   
   
-  function isServiceIncludedInAnyPackage(serviceName: string): boolean {
-    return selectedPackages.some((pkgName) =>
-      Object.values(categories).some((category) =>
-        category.packages
-          .find((pkg) => pkg.name === pkgName)
-          ?.servicesIncluded.includes(serviceName)
-      )
+  function isServiceIncludedInAnyPackage(serviceId: string): boolean {
+    return selectedPackages.some((pkgId) =>
+      Object.values(categories)
+        .flatMap((category) => category.packages)
+        .find((pkg) => pkg.id === pkgId)
+        ?.servicesIncluded.includes(serviceId)
     );
   }
+  
 
   function computeTotal(): number {
     let total = 0;
   
     // Calculate total for selected packages
-    selectedPackages.forEach((packageName) => {
+    selectedPackages.forEach((packageId) => {
       const pkg = Object.values(categories)
         .flatMap((category) => category.packages)
-        .find((pkg) => pkg.name === packageName);
+        .find((pkg) => pkg.id === packageId);
+    
   
       if (pkg) {
         total += pkg.pricing[selectedFrequency];
@@ -482,62 +523,57 @@ function BookingContent() {
        <section>
   <h2 className="text-xl font-semibold mb-2">Available Packages:</h2>
   <div className="space-y-2">
-    {categories[activeCategory].packages.map((pkg) => {
-      const isChecked = selectedPackages.includes(pkg.name);
+  {categories[activeCategory].packages.map((pkg) => {
+  const isChecked = selectedPackages.includes(pkg.id);
 
-      return (
-        <label key={pkg.name} className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={isChecked}
-            onChange={() => handlePackageToggle(pkg.name)}
-          />
-          <span>
-            {pkg.name} (Discounted Price:{" "}
-            <span className="text-green-600">${pkg.pricing[selectedFrequency]}</span>)
-          </span>
-        </label>
-      );
-    })}
+  return (
+    <label key={pkg.id} className="flex items-center space-x-2 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={() => handlePackageToggle(pkg.id)}
+      />
+      <span>
+        {pkg.name} (Discounted Price:{" "}
+        <span className="text-green-600">${pkg.pricing[selectedFrequency]}</span>)
+      </span>
+    </label>
+  );
+})}
+
   </div>
 
   <h2 className="text-xl font-semibold mt-4 mb-2">Available Services:</h2>
   <div className="space-y-2">
-    {categories[activeCategory].services.map((srv) => {
-      // Check if the service is included in any selected package
-      const isIncludedInAnyPackage = selectedPackages.some((pkgName) =>
-        categories[activeCategory].packages
-          .find((pkg) => pkg.name === pkgName)
-          ?.servicesIncluded.includes(srv.id) // Compare service ID instead of name
-      );
+  {categories[activeCategory].services.map((srv) => {
+    const isIncludedInSelectedPackage = isServiceIncludedInAnyPackage(srv.id);
 
-      return (
-        <label
-          key={srv.id}
-          className={`flex items-center space-x-2 cursor-pointer ${
-            isIncludedInAnyPackage ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          <input
-            type="checkbox"
-            checked={selectedServices.includes(srv.id)}
-            disabled={isIncludedInAnyPackage} // Disable if the service is part of a selected package
-            onChange={() => handleServiceToggle(srv.id)}
-          />
-          <span>
-            {srv.name}:{" "}
-            <span
-              className={`text-green-600 ${
-                isIncludedInAnyPackage ? "italic" : ""
-              }`}
-            >
-              {isIncludedInAnyPackage ? "Included" : `$${srv.pricing[selectedFrequency]}`}
-            </span>
+    return (
+      <label
+        key={srv.id}
+        className={`flex items-center space-x-2 ${
+          isIncludedInSelectedPackage ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={selectedServices.includes(srv.id)}
+          disabled={isIncludedInSelectedPackage}
+          onChange={() => handleServiceToggle(srv.id)}
+        />
+        <span>
+          {srv.name}:{" "}
+          <span className="text-green-600">
+            {isIncludedInSelectedPackage ? "Included" : `$${srv.pricing[selectedFrequency]}`}
           </span>
-        </label>
-      );
-    })}
-  </div>
+        </span>
+      </label>
+    );
+  })}
+</div>
+
+
+
 </section>
 
 
@@ -591,39 +627,45 @@ function BookingContent() {
     Frequency: <strong>{selectedFrequency.charAt(0).toUpperCase() + selectedFrequency.slice(1)}</strong>
   </p>
 
-  {/* Selected Packages */}
-  <div className="mb-4">
-    <h3 className="text-lg font-semibold">Selected Packages:</h3>
- <div className="mb-4">
+
+ {/* Selected Packages */}
+<div className="mb-4">
   <h3 className="text-lg font-semibold">Selected Packages:</h3>
-  {selectedPackages.map((packageName) => {
+
+  {selectedPackages.map((packageId) => {
     const pkg = Object.values(categories)
       .flatMap((category) => category.packages)
-      .find((pkg) => pkg.name === packageName);
+      .find((pkg) => pkg.id === packageId);
 
     return (
       pkg && (
-        <div key={packageName}>
+        <div key={packageId}>
           <div className="flex justify-between">
             <span>{pkg.name}</span>
             <span className="text-green-600">${pkg.pricing[selectedFrequency]}</span>
           </div>
-          <ul className="pl-4 text-sm text-gray-600">
+          <ul className="pl-6 text-gray-500 text-sm">
             {pkg.servicesIncluded.map((serviceId) => {
               const service = Object.values(categories)
                 .flatMap((category) => category.services)
                 .find((srv) => srv.id === serviceId);
-              return service && <li key={serviceId}>{service.name}</li>;
+              return (
+                service && (
+                  <li key={serviceId} className="italic">
+                    {service.name} (Included)
+                  </li>
+                )
+              );
             })}
           </ul>
         </div>
       )
     );
   })}
+
+  {selectedPackages.length === 0 && <p className="text-gray-500">No packages selected.</p>}
 </div>
 
-    {selectedPackages.length === 0 && <p className="text-gray-500">No packages selected.</p>}
-  </div>
 
   {/* Selected Services */}
   <div className="mb-4">

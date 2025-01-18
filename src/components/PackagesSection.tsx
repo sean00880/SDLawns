@@ -55,14 +55,15 @@ export function PackagesSection({ category, frequency }: PackagesSectionProps) {
       ? dumpRunServices.packages
       : gardeningServices.packages;
 
-  const generateBookingURL = (packageId: string, servicesIncluded: string[]) => {
-    const params = new URLSearchParams({
-      packages: JSON.stringify([packageId]),
-      services: JSON.stringify(servicesIncluded),
-      frequency,
-    }).toString();
-    return `/booking?${params}`;
-  };
+      const generateBookingURL = (packageId: string) => {
+        const params = new URLSearchParams({
+          packages: JSON.stringify([packageId]), // Only include the package ID
+          frequency, // Keep the frequency
+        }).toString();
+        return `/booking?${params}`;
+      };
+      
+      
 
   const generateReadMoreURL = (packageId: string) => {
     return `/services/${packageId}`;
@@ -141,7 +142,7 @@ export function PackagesSection({ category, frequency }: PackagesSectionProps) {
 
               {/* CTA */}
               <div className="p-4 mt-auto flex justify-between items-center gap-4">
-                <Link href={generateBookingURL(pkg.id, pkg.servicesIncluded)}>
+                <Link href={generateBookingURL(pkg.id)}>
                   <Button className="w-full bg-green-700 text-white hover:bg-green-800">
                     Book Now
                   </Button>
