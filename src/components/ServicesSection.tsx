@@ -2,11 +2,28 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
+import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { lawncareServices, pressureWashingServices, dumpRunServices, gardeningServices } from "../app/data/servicesData";
+import { lawncareContent } from "../app/data/content/lawncareContent";
+import { pressureWashingContent } from "../app/data/content/pressureWashingContent";
+import { dumpRunContent } from "../app/data/content/dumpRunContent";
+import { gardeningContent } from "../app/data/content/gardeningContent";
+import {
+  lawncareServices,
+  pressureWashingServices,
+  dumpRunServices,
+  gardeningServices,
+} from "../app/data/servicesData";
 
 type Frequency = "weekly" | "bi-weekly" | "monthly" | "one-time";
+
+type Service = {
+  id: string;
+  name: string;
+  description: string[];
+  img: string;
+  pricing: { [key in Frequency]: number };
+};
 
 interface ServicesSectionProps {
   category: "lawncare" | "pressureWashing" | "dumpRuns" | "gardening";
@@ -22,11 +39,55 @@ export function ServicesSection({ category, frequency }: ServicesSectionProps) {
     return `/booking?${params}`;
   };
 
-  const generateReadMoreURL = (serviceId: string) => {
-    return `/services/${serviceId}`;
+  const generateReadMoreURL = (serviceId: string) => `/services/${serviceId}`;
+
+  const getCategoryContent = (category: string): Record<string, any> => {
+    switch (category) {
+      case "lawncare":
+        return lawncareContent;
+      case "pressureWashing":
+        return pressureWashingContent;
+      case "dumpRuns":
+        return dumpRunContent;
+      case "gardening":
+        return gardeningContent;
+      default:
+        return {};
+    }
   };
 
-  const renderServices = (services: typeof lawncareServices.services) => {
+  const getServicesData = (category: string): any[] => {
+    switch (category) {
+      case "lawncare":
+        return lawncareServices.services;
+      case "pressureWashing":
+        return pressureWashingServices.services;
+      case "dumpRuns":
+        return dumpRunServices.services;
+      case "gardening":
+        return gardeningServices.services;
+      default:
+        return [];
+    }
+  };
+
+  const mergeServices = (category: string): Service[] => {
+    const content = getCategoryContent(category);
+    const services = getServicesData(category);
+
+    // Merge data from servicesData and category content
+    return services.map((service) => ({
+      id: service.id,
+      name: content[service.id]?.title || service.name,
+      description: content[service.id]?.description
+        ? content[service.id].description.split("\n")
+        : ["Description not available"],
+      img: content[service.id]?.image || service.img || "/default-image.jpg",
+      pricing: service.pricing,
+    }));
+  };
+
+  const renderServices = (services: Service[]) => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {services.map((srv) => (
@@ -37,7 +98,7 @@ export function ServicesSection({ category, frequency }: ServicesSectionProps) {
             {/* Service Image with Price */}
             <div className="relative w-full h-52">
               <Image
-                src={srv.img} // Path stored in srv.img
+                src={srv.img}
                 alt={srv.name}
                 fill
                 className="object-cover rounded-t-lg"
@@ -78,14 +139,7 @@ export function ServicesSection({ category, frequency }: ServicesSectionProps) {
     );
   };
 
-  const services =
-    category === "lawncare"
-      ? lawncareServices.services
-      : category === "pressureWashing"
-      ? pressureWashingServices.services
-      : category === "dumpRuns"
-      ? dumpRunServices.services
-      : gardeningServices.services;
+  const services = mergeServices(category);
 
   return (
     <section className="px-4 py-10 bg-gray-50 flex flex-col items-center">

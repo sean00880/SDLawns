@@ -28,6 +28,7 @@ export type ServiceContent = {
   faq?: FAQ[];
   excerpt?: string; // Short summary of the service
   listItems?: string[]; // List of key features or benefits
+  img?: string; // Image for the service listing or section
 };
 
 export const lawncareContent: Record<string, ServiceContent> = {
@@ -42,6 +43,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
       "Edging and trimming for a polished look",
       "Grass clippings cleared for a pristine finish",
     ],
+    img: "/images/landscape1.jpg",
     sections: [
       {
         title: "Included Services",
@@ -54,7 +56,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
       },
     ],
     testimonial: {
-      text: `"I was blown away by the transformation! Their attention to detail is unmatched."`,
+      text: "I was blown away by the transformation! Their attention to detail is unmatched.",
       author: "Laura W.",
     },
     images: {
@@ -69,6 +71,91 @@ export const lawncareContent: Record<string, ServiceContent> = {
       {
         question: "Do you offer organic lawn treatments?",
         answer: "Yes! We provide eco-friendly solutions tailored to your lawn’s needs.",
+      },
+    ],
+  },
+
+  "hedge-trimming": {
+    title: "Hedge Trimming Service in San Diego",
+    description: `
+      Enhance the beauty of your landscape with our **Hedge Trimming Service**. Our skilled team provides precision trimming to ensure your hedges are healthy, visually appealing, and well-maintained.
+    `,
+    excerpt: "Precision trimming for stunning and healthy hedges.",
+    listItems: [
+      "Shaping and trimming for all hedge types",
+      "Removal of excess trimmings",
+      "Promotes healthy growth and proper airflow",
+    ],
+    img: "/images/shrub.jpg",
+    sections: [
+      {
+        title: "Included Services",
+        description: `
+          - Shaping and trimming of hedges
+          - Removal of trimmings
+          - Ensuring healthy hedge growth
+        `,
+        image: "/images/shrub.jpg",
+      },
+    ],
+    testimonial: {
+      text: "Our hedges have never looked so clean and beautiful. Highly recommend their services!",
+      author: "Mark T.",
+    },
+    images: {
+      before: "before-hedge.jpg",
+      after: "shrub.jpg",
+    },
+    faq: [
+      {
+        question: "How often should I have my hedges trimmed?",
+        answer: "We recommend trimming every 4-6 weeks during the growing season for optimal results.",
+      },
+      {
+        question: "Do you handle large hedge projects?",
+        answer: "Yes, we handle all hedge sizes and types, from small garden hedges to large estate projects.",
+      },
+    ],
+  },
+
+  "tree-weed-removal": {
+    title: "Tree/Weed Removal Service in San Diego",
+    description: `
+      Say goodbye to unwanted trees and weeds with our **Tree/Weed Removal Service**. We provide complete removal, ensuring your outdoor space remains clean, safe, and beautiful.
+    `,
+    excerpt: "Comprehensive removal of trees and weeds for a cleaner yard.",
+    listItems: [
+      "Safe and efficient tree and weed removal",
+      "Preventative treatments to inhibit regrowth",
+      "Complete debris and stump cleanup",
+    ],
+    sections: [
+      {
+        title: "Included Services",
+        description: `
+          - Removing weeds and small trees from lawns
+          - Preventative treatments to inhibit regrowth
+          - Complete debris and stump cleanup
+        `,
+        image: "/images/treeremoval.jpg",
+      },
+    ],
+    testimonial: {
+      text: "Their team removed all the unwanted trees and weeds from my property efficiently!",
+      author: "Sarah P.",
+    },
+    images: {
+      before: "before-tree-weed.jpg",
+      after: "treeremoval.jpg",
+    },
+    faq: [
+      {
+        question: "Can you remove large trees?",
+        answer: "Yes, we handle small to medium-sized trees safely. For larger trees, we can recommend trusted arborists.",
+      },
+      {
+        question: "Are your treatments safe for pets?",
+        answer: "Absolutely. We use eco-friendly treatments that are safe for both pets and the environment.",
       },
     ],
   },
@@ -88,40 +175,39 @@ export const lawncareContent: Record<string, ServiceContent> = {
       {
         title: "Included Services",
         description: `
-          - Basic Lawn Mowing: Enjoy expertly manicured grass with regular mowing that promotes even, healthy growth while enhancing the overall appearance of your property.
-          - Hedge Trimming: Our skilled team shapes and trims your hedges with precision, ensuring they remain visually stunning and healthy by promoting proper airflow and growth.
-          - Tree/Weed Removal: Removing weeds and small trees from lawns, preventing regrowth, and ensuring complete debris cleanup.
+          - Basic Lawn Mowing: Enjoy expertly manicured grass with regular mowing.
+          - Hedge Trimming: Precision shaping and trimming for all hedge types.
+          - Tree/Weed Removal: Comprehensive removal and preventative treatments.
         `,
         image: "/images/lawncare2.png",
       },
       {
         title: "Why This Package Is the Best Choice for Your Lawn",
         description: `
-          - Cost-Effective Solution: Save significantly when you bundle essential services together rather than scheduling them individually.
-          - Tailored Scheduling: Services are customized to fit your lawn’s unique needs, ensuring optimal results during every season of the year.
-          - One-Stop Convenience: No need to juggle multiple contractors—our comprehensive approach ensures all aspects of lawn care are expertly managed by a single trusted team.
+          - Cost-Effective Solution: Save significantly with bundled services.
+          - Tailored Scheduling: Customized services to fit your lawn’s needs.
+          - One-Stop Convenience: All aspects of lawn care managed by a trusted team.
         `,
         image: "/images/lawncare-benefits.jpg",
       },
     ],
     testimonial: {
-      text: `"The Lawn Care Comprehensive Package has completely transformed my yard. It’s the perfect combination of convenience, value, and quality. My lawn has never looked better!"`,
+      text: "The Lawn Care Comprehensive Package transformed my yard. It's the perfect combination of convenience and quality!",
       author: "Sophia M.",
     },
     faq: [
       {
         question: "Can I add extra services to the package?",
-        answer: "Yes, we can customize the package to include additional services such as irrigation setup or pest control to meet your specific needs.",
+        answer: "Yes, we can customize the package to include additional services such as irrigation setup or pest control.",
       },
       {
         question: "How often are the services performed?",
-        answer: "Frequency options include weekly, bi-weekly, or monthly visits. We'll work with you to create a schedule that ensures your lawn remains beautiful year-round.",
+        answer: "Frequency options include weekly, bi-weekly, or monthly visits.",
       },
       {
         question: "Is this package suitable for large properties?",
-        answer: "Absolutely! We tailor our services to lawns of all sizes, from cozy yards to expansive estates.",
+        answer: "Absolutely! We tailor our services to lawns of all sizes.",
       },
     ],
   },
 };
-

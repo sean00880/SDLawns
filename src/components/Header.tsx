@@ -30,6 +30,17 @@ const Header: React.FC = () => {
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleMegaMenu = () => setMegaMenuOpen(!megaMenuOpen);
 
+  function generateSlug(name: string, frequency: "weekly" | "bi-weekly" | "monthly" | "one-time"): string {
+    return `${name.toLowerCase().replace(/\s+/g, "-")}-${frequency}`;
+  }
+
+  const handleResize = () => {
+    if (window.innerWidth >= 768) {
+      setMenuOpen(false);
+      setMegaMenuOpen(false);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -37,20 +48,26 @@ const Header: React.FC = () => {
         setMegaMenuOpen(false);
       }
     };
-
-    const handleRouteChange = () => {
-      setMenuOpen(false);
-      setMegaMenuOpen(false);
+  
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMenuOpen(false);
+        setMegaMenuOpen(false);
+      }
     };
-
+  
     document.addEventListener("mousedown", handleClickOutside);
-    // No `router.events` in `next/navigation`, so we handle navigation differently
-    router.prefetch('/'); // Prefetch the home page as an optimization
-
+    window.addEventListener("resize", handleResize);
+    router.prefetch("/");
+  
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", handleResize);
     };
   }, [router]);
+  
+  
+  
   
   return (
     <header className="glass-header sticky top-0 w-full z-50 shadow-md bg-white/90 backdrop-blur-lg"  ref={menuRef}>
@@ -99,7 +116,7 @@ const Header: React.FC = () => {
 >
   <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 text-black">
     <li>
-      <Link href="/" className="nav-link">
+      <Link href="/" className="nav-link" onClick={() => setMegaMenuOpen(false)}>
         Home
       </Link>
     </li>
@@ -115,7 +132,10 @@ const Header: React.FC = () => {
           <div className="fixed top-full left-0 w-full bg-white shadow-lg p-6 z-50">
             <div className="grid grid-cols-4 gap-6 max-w-7xl mx-auto">
               {Object.entries(servicesData).map(([category, data]) => (
-                <div key={category} className="flex flex-col items-center">
+                <div
+                  key={category}
+                  className="flex flex-col items-center border border-gray-200 rounded-lg p-4 shadow-md"
+                >
                   <Image
                     src={data.packages?.[0]?.img || "/images/default-service.jpg"}
                     alt={category}
@@ -123,25 +143,45 @@ const Header: React.FC = () => {
                     height={200}
                     className="rounded-lg mb-2 object-cover h-[200px]"
                   />
-                  <h3 className="font-bold text-black text-center">{category}</h3>
+                  <h3 className="font-bold text-black text-center text-lg mb-2">
+                    <Link
+                      href={`/services/${category.toLowerCase()}`}
+                      className="text-green-600 hover:underline"
+                      onClick={() => {
+                        setMegaMenuOpen(false);
+                      }}
+                    >
+                      {category}
+                    </Link>
+                  </h3>
                   <ul className="mt-2 w-full">
                     {data.services.map((service) => (
-                      <li key={service.id} className="text-sm text-gray-600 mb-2">
+                      <li
+                        key={service.id}
+                        className="text-sm text-gray-800 mb-4 border-b border-gray-200 pb-2"
+                      >
                         <div className="flex justify-between items-center">
-                          <span>{service.name}</span>
+                          <Link
+                            href={`/services/${service.id}`}
+                            className="text-green-600 hover:underline"
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                            }}
+                          >
+                            {service.name}
+                          </Link>
                           <span className="text-black font-medium">
                             ${service.pricing?.[selectedFrequency] || "N/A"}
                           </span>
                         </div>
-                        <div className="flex justify-between mt-1">
-                        <Link
-  href={`/booking?slug=${service.id}-${selectedFrequency}`}
-  className="text-green-500 hover:underline text-sm"
-  onClick={() => {
-    setMenuOpen(false);
-    setMegaMenuOpen(false);
-  }}
->
+                        <div className="mt-1">
+                          <Link
+                            href={`/booking?services=%5B%22${service.id}%22%5D&frequency=${selectedFrequency}`}
+                            className="text-green-600 hover:underline text-sm"
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                            }}
+                          >
                             Book Now
                           </Link>
                         </div>
@@ -149,40 +189,51 @@ const Header: React.FC = () => {
                     ))}
                   </ul>
                   <div className="mt-4 w-full">
-                    <h4 className="font-semibold text-black">Package:</h4>
-                    <div className="text-sm text-gray-600 mb-2 flex justify-between items-center">
-                      <span>{data.packages?.[0]?.name || "No Package"}</span>
-                      <span className="text-black font-medium">
-                        ${data.packages?.[0]?.pricing?.[selectedFrequency] || "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between mt-1">
-                    <Link
-  href={`/booking?slug=${data.packages?.[0]?.id}-${selectedFrequency}`}
-  className="text-green-500 hover:underline text-sm"
-  onClick={() => {
-    setMenuOpen(false);
-    setMegaMenuOpen(false);
-  }}
->
-                        Book Now
-                      </Link>
-                    </div>
+                    <h4 className="font-semibold text-black mb-2">Package:</h4>
+                    {data.packages?.map((pkg) => (
+                      <div
+                        key={pkg.id}
+                        className="text-sm text-gray-800 mb-4 border-b border-gray-200 pb-2"
+                      >
+                        <div className="flex justify-between items-center">
+                          <Link
+                            href={`/services/${pkg.id}`}
+                            className="text-green-600 hover:underline"
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                            }}
+                          >
+                            {pkg.name || "No Package"}
+                          </Link>
+                          <span className="text-black font-medium">
+                            ${pkg.pricing?.[selectedFrequency] || "N/A"}
+                          </span>
+                        </div>
+                        <div className="mt-1">
+                          <Link
+                            href={`/booking?services=%5B%22${pkg.id}%22%5D&frequency=${selectedFrequency}`}
+                            className="text-green-600 hover:underline text-sm"
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                            }}
+                          >
+                            Book Now
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
 
+            {/* Frequency Toggle */}
             <div className="mt-6 max-w-7xl mx-auto">
-              <label className="text-sm font-bold text-black">
-                Frequency:
-              </label>
+              <label className="text-sm font-bold text-black">Frequency:</label>
               <select
                 value={selectedFrequency}
                 onChange={(e) =>
-                  setSelectedFrequency(
-                    e.target.value as typeof selectedFrequency
-                  )
+                  setSelectedFrequency(e.target.value as typeof selectedFrequency)
                 }
                 className="p-2 rounded-md bg-gray-100 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 mt-2"
               >
@@ -197,7 +248,7 @@ const Header: React.FC = () => {
       </div>
     </li>
     <li>
-      <Link href="/booking" className="nav-link">
+      <Link href="/booking" className="nav-link" onClick={() => setMegaMenuOpen(false)}>
         Get a Quote
       </Link>
     </li>
@@ -207,21 +258,26 @@ const Header: React.FC = () => {
 
 
 
+
+
         {/* Mobile Navigation */}
         {menuOpen && (
   <div className="fixed inset-0 h-screen bg-white z-50 flex flex-col items-center justify-center">
     <button
       className="absolute top-4 right-4 text-black text-2xl focus:outline-none"
-      onClick={toggleMenu}
+      onClick={() => setMenuOpen(false)}
     >
       &times;
     </button>
     <ul className="flex flex-col items-center space-y-6 text-black">
+      {/* Home Link */}
       <li>
-        <Link href="/" className="nav-link" onClick={toggleMenu}>
+        <Link href="/" className="nav-link" onClick={() => setMenuOpen(false)}>
           Home
         </Link>
       </li>
+
+      {/* Services Menu */}
       <li>
         <button
           onClick={toggleMegaMenu}
@@ -233,7 +289,9 @@ const Header: React.FC = () => {
           <div className="fixed inset-y-0 h-screen right-0 w-full bg-white shadow-lg p-6 z-50 overflow-y-auto">
             <button
               className="absolute top-4 right-4 text-black text-2xl focus:outline-none"
-              onClick={toggleMegaMenu}
+              onClick={() => {
+                setMegaMenuOpen(false);
+              }}
             >
               &times;
             </button>
@@ -247,20 +305,47 @@ const Header: React.FC = () => {
                     height={200}
                     className="rounded-lg mb-2 object-cover h-[200px]"
                   />
-                  <h3 className="font-bold text-black text-center">{category}</h3>
+                  <h3 className="font-bold text-black text-center text-lg mb-2">
+                    <Link
+                      href={`/services/${category.toLowerCase()}`}
+                      className="text-green-600 hover:underline"
+                      onClick={() => {
+                        setMegaMenuOpen(false);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      {category}
+                    </Link>
+                  </h3>
                   <ul className="mt-2 w-full">
                     {data.services.map((service) => (
-                      <li key={service.id} className="text-sm text-gray-600 mb-2">
+                      <li
+                        key={service.id}
+                        className="text-sm text-gray-800 mb-4 border-b border-gray-200 pb-2"
+                      >
                         <div className="flex justify-between items-center">
-                          <span>{service.name}</span>
+                          <Link
+                            href={`/services/${service.id}`}
+                            className="text-green-600 hover:underline"
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                              setMenuOpen(false);
+                            }}
+                          >
+                            {service.name}
+                          </Link>
                           <span className="text-black font-medium">
-                            ${service.pricing[selectedFrequency]}
+                            ${service.pricing?.[selectedFrequency] || "N/A"}
                           </span>
                         </div>
-                        <div className="flex justify-between mt-1">
+                        <div className="mt-1">
                           <Link
-                            href={`/booking?slug=${service.id}-${selectedFrequency}`}
-                            className="text-green-500 hover:underline text-sm"
+                            href={`/booking?services=%5B%22${service.id}%22%5D&frequency=${selectedFrequency}`}
+                            className="text-green-600 hover:underline text-sm"
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                              setMenuOpen(false);
+                            }}
                           >
                             Book Now
                           </Link>
@@ -269,30 +354,49 @@ const Header: React.FC = () => {
                     ))}
                   </ul>
                   <div className="mt-4 w-full">
-                    <h4 className="font-semibold text-black">Package:</h4>
-                    <div className="text-sm text-gray-600 mb-2 flex justify-between items-center">
-                      <span>{data.packages[0]?.name || "No Package"}</span>
-                      <span className="text-black font-medium">
-                        ${data.packages[0]?.pricing?.[selectedFrequency] || "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between mt-1">
-                      <Link
-                        href={`/booking?slug=${data.packages[0]?.id}-${selectedFrequency}`}
-                        className="text-green-500 hover:underline text-sm"
+                    <h4 className="font-semibold text-black mb-2">Package:</h4>
+                    {data.packages?.map((pkg) => (
+                      <div
+                        key={pkg.id}
+                        className="text-sm text-gray-800 mb-4 border-b border-gray-200 pb-2"
                       >
-                        Book Now
-                      </Link>
-                    </div>
+                        <div className="flex justify-between items-center">
+                          <Link
+                            href={`/services/${pkg.id}`}
+                            className="text-green-600 hover:underline"
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                              setMenuOpen(false);
+                            }}
+                          >
+                            {pkg.name || "No Package"}
+                          </Link>
+                          <span className="text-black font-medium">
+                            ${pkg.pricing?.[selectedFrequency] || "N/A"}
+                          </span>
+                        </div>
+                        <div className="mt-1">
+                          <Link
+                            href={`/booking?services=%5B%22${pkg.id}%22%5D&frequency=${selectedFrequency}`}
+                            className="text-green-600 hover:underline text-sm"
+                            onClick={() => {
+                              setMegaMenuOpen(false);
+                              setMenuOpen(false);
+                            }}
+                          >
+                            Book Now
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
 
+            {/* Frequency Selector */}
             <div className="mt-6">
-              <label className="text-sm font-bold text-black">
-                Frequency:
-              </label>
+              <label className="text-sm font-bold text-black">Frequency:</label>
               <select
                 value={selectedFrequency}
                 onChange={(e) =>
@@ -309,14 +413,24 @@ const Header: React.FC = () => {
           </div>
         )}
       </li>
+
+      {/* Get a Quote */}
       <li>
-        <Link href="/booking" className="nav-link" onClick={toggleMenu}>
+        <Link
+          href="/booking"
+          className="nav-link"
+          onClick={() => {
+            setMenuOpen(false);
+          }}
+        >
           Get a Quote
         </Link>
       </li>
     </ul>
   </div>
 )}
+
+
 </div>
     </header>
   );
