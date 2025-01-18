@@ -6,8 +6,8 @@ import {
   pressureWashingServices,
   dumpRunServices,
   gardeningServices,
-} from "../../data/servicesData";
-import { lawncareContent } from "../../data/content/lawncareContent";
+} from "../app/data/servicesData";
+import { lawncareContent } from "../app/data/content/lawncareContent";
 
 interface Service {
   id: string;
@@ -63,14 +63,10 @@ export default function ServiceCategoryWrapper({ params }: { params: Promise<{ c
   return <ServiceCategoryPage categoryFromParams={categoryFromParams} />;
 }
 
-// Main Component
+// Main ServiceCategoryPage Component
 function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: string }) {
   const [category, setCategory] = useState<string | null>(null);
   const [categoryServices, setCategoryServices] = useState<CategoryData | null>(null);
-
-  const [selectedFrequency, setSelectedFrequency] = useState<"weekly" | "bi-weekly" | "monthly" | "one-time">("weekly");
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
 
   useEffect(() => {
     const normalizedCategory = categoryFromParams.replace(/-/g, "").toLowerCase();
@@ -83,22 +79,14 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
     }
   }, [categoryFromParams]);
 
+  const [selectedFrequency, setSelectedFrequency] = useState<"weekly" | "bi-weekly" | "monthly" | "one-time">("weekly");
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+
   const handleServiceToggle = (serviceId: string) => {
-    setSelectedServices((prev) => {
-      const updatedServices = prev.includes(serviceId)
-        ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId];
-
-      // If deselecting a service that is part of a selected package, deselect the package
-      if (selectedPackage) {
-        const selectedPkg = categoryServices?.packages.find((pkg) => pkg.id === selectedPackage);
-        if (selectedPkg && !selectedPkg.servicesIncluded.every((id) => updatedServices.includes(id))) {
-          setSelectedPackage(null);
-        }
-      }
-
-      return updatedServices;
-    });
+    setSelectedServices((prev) =>
+      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
+    );
   };
 
   const handlePackageToggle = (packageId: string) => {
@@ -130,14 +118,6 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
     return total;
   };
 
-  const generateBookingURL = (): string => {
-    const params = new URLSearchParams();
-    if (selectedServices.length > 0) params.append("services", JSON.stringify(selectedServices));
-    if (selectedPackage) params.append("packages", JSON.stringify([selectedPackage]));
-    params.append("frequency", selectedFrequency);
-    return `/booking?${params.toString()}`;
-  };
-
   if (!category || !categoryServices) {
     return <div className="text-center text-gray-500">Invalid category or loading...</div>;
   }
@@ -151,12 +131,15 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
         </h1>
         <p className="text-gray-700 mb-8 text-lg">{categoryDescriptions[category]}</p>
 
-        {/* Services Section */}
+        {/* Services List */}
         {categoryServices.services.map((service, index) => {
           const content = lawncareContent[service.id as keyof typeof lawncareContent];
-          const { excerpt } = content
-            ? { excerpt: content.excerpt || "Description not available." }
-            : { excerpt: "Description not available." };
+          const { excerpt, listItems } = content
+            ? {
+                excerpt: content.excerpt || "Description not available.",
+                listItems: content.listItems || [],
+              }
+            : { excerpt: "Description not available.", listItems: [] };
 
           const isSelected = selectedServices.includes(service.id);
 
@@ -173,6 +156,11 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
               <div className="lg:w-1/2">
                 <h2 className="text-2xl font-bold text-green-700 mb-4">{service.name}</h2>
                 <p className="text-gray-700 mb-4">{excerpt}</p>
+                <ul className="list-disc pl-5 text-gray-700 mb-4">
+                  {listItems.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
                 <div className="flex items-center gap-4">
                   <a
                     href={`/services/${service.id}`}
@@ -183,12 +171,12 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
                   <button
                     className={`py-2 px-4 rounded-lg ${
                       isSelected
-                        ? "bg-green-500 text-white hover:bg-green-600"
+                        ? "bg-blue-500 text-white hover:bg-blue-600"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                     onClick={() => handleServiceToggle(service.id)}
                   >
-                    {isSelected ? "Deselect" : "Select"}
+                    {isSelected ? "Selected" : "Select"}
                   </button>
                 </div>
               </div>
@@ -213,7 +201,7 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
                 <ul className="text-sm text-gray-600 mb-4">
                   {pkg.servicesIncluded.map((serviceId) => {
                     const service = categoryServices.services.find((srv) => srv.id === serviceId);
-                    return service ? <li key={serviceId}>{service.name}</li> : null;
+                    return service && <li key={serviceId}>{service.name}</li>;
                   })}
                 </ul>
                 <div className="flex items-center gap-4">
@@ -226,12 +214,12 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
                   <button
                     className={`py-2 px-4 rounded-lg ${
                       isSelected
-                        ? "bg-green-500 text-white hover:bg-green-600"
+                        ? "bg-blue-500 text-white hover:bg-blue-600"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                     onClick={() => handlePackageToggle(pkg.id)}
                   >
-                    {isSelected ? "Deselect" : "Select"}
+                    {isSelected ? "Selected" : "Select"}
                   </button>
                 </div>
               </div>
@@ -241,41 +229,11 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
       </div>
 
       {/* Sidebar */}
-      <aside className="w-full lg:w-1/3 h-[60vh] bg-white shadow-md rounded-lg p-6 sticky lg:top-[9vh] text-black">
+      <aside className="w-full lg:w-1/3 h-[60vh] bg-white shadow-md rounded-lg p-6 sticky top-6 text-black">
         <h2 className="text-2xl font-bold text-green-600 mb-6">Booking Summary</h2>
-
-        {selectedPackage ? (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Selected Package:</h3>
-            <p className="font-medium">{categoryServices.packages.find((pkg) => pkg.id === selectedPackage)?.name}</p>
-            <ul className="list-disc pl-5">
-              {categoryServices.packages
-                .find((pkg) => pkg.id === selectedPackage)
-                ?.servicesIncluded.map((serviceId) => {
-                  const service = categoryServices.services.find((srv) => srv.id === serviceId);
-                  return service ? <li key={serviceId}>{service.name}</li> : null;
-                })}
-            </ul>
-          </div>
-        ) : (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Selected Services:</h3>
-            {selectedServices.length > 0 ? (
-              <ul className="list-disc pl-5">
-                {selectedServices.map((serviceId) => {
-                  const service = categoryServices.services.find((srv) => srv.id === serviceId);
-                  return service ? <li key={serviceId}>{service.name}</li> : null;
-                })}
-              </ul>
-            ) : (
-              <p className="text-gray-500">No services selected.</p>
-            )}
-          </div>
-        )}
-
         {/* Frequency Selection */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-2">Select Frequency:</h3>
+          <h3 className="text-lg font-semibold mb-2">Select Frequency</h3>
           <div className="flex space-x-2">
             {["weekly", "bi-weekly", "monthly", "one-time"].map((freq) => (
               <button
@@ -292,23 +250,10 @@ function ServiceCategoryPage({ categoryFromParams }: { categoryFromParams: strin
             ))}
           </div>
         </div>
-
-        {/* Total Calculation */}
         <div className="text-xl font-bold text-gray-800 flex justify-between border-t border-gray-300 pt-4">
           <span>Total:</span>
           <span>${computeTotal()}</span>
         </div>
-
-        {/* Book Now Button */}
-        <button
-          className="w-full bg-green-600 hover:bg-green-700 py-2 px-4 rounded mt-4 text-white"
-          onClick={() => {
-            const bookingURL = generateBookingURL();
-            window.location.href = bookingURL;
-          }}
-        >
-          Book This Service
-        </button>
       </aside>
     </div>
   );
