@@ -17,9 +17,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'No Limits Mobile Detailing LLC',
-  description: 'World class automobile detailing in San Diego, California',
+  title: 'San Diego Custom Backyards & Landscaping',
+  description: 'Exceptional backyard transformations and landscaping services in San Diego, California.',
 };
+
 
 
 
