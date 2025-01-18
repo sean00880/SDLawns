@@ -43,7 +43,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
       "Edging and trimming for a polished look",
       "Grass clippings cleared for a pristine finish",
     ],
-    img: "/images/landscape1.jpg",
+    img: "mowing2.jpg",
     sections: [
       {
         title: "Included Services",
@@ -52,7 +52,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
           - Trimming edges and pathways
           - Grass clipping cleanup
         `,
-        image: "/images/landscape1.jpg",
+        image: "mowing2.jpg",
       },
     ],
     testimonial: {
@@ -60,7 +60,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
       author: "Laura W.",
     },
     images: {
-      before: "before-wilson.jpg",
+      before: "overgrown.jpg",
       after: "landscape1.jpg",
     },
     faq: [
@@ -95,7 +95,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
           - Removal of trimmings
           - Ensuring healthy hedge growth
         `,
-        image: "/images/shrub.jpg",
+        image: "shrub.jpg",
       },
     ],
     testimonial: {
@@ -103,8 +103,8 @@ export const lawncareContent: Record<string, ServiceContent> = {
       author: "Mark T.",
     },
     images: {
-      before: "before-hedge.jpg",
-      after: "shrub.jpg",
+      before: "shrub.jpg",
+      after: "trimming.jpg",
     },
     faq: [
       {
@@ -137,7 +137,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
           - Preventative treatments to inhibit regrowth
           - Complete debris and stump cleanup
         `,
-        image: "/images/treeremoval.jpg",
+        image: "treeremoval.jpg",
       },
     ],
     testimonial: {
@@ -145,8 +145,8 @@ export const lawncareContent: Record<string, ServiceContent> = {
       author: "Sarah P.",
     },
     images: {
-      before: "before-tree-weed.jpg",
-      after: "treeremoval.jpg",
+      before: "weedbefore.png",
+      after: "weedafter2.png",
     },
     faq: [
       {
@@ -179,7 +179,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
           - Hedge Trimming: Precision shaping and trimming for all hedge types.
           - Tree/Weed Removal: Comprehensive removal and preventative treatments.
         `,
-        image: "/images/lawncare2.png",
+        image: "lawncare2.png",
       },
       {
         title: "Why This Package Is the Best Choice for Your Lawn",
@@ -188,7 +188,7 @@ export const lawncareContent: Record<string, ServiceContent> = {
           - Tailored Scheduling: Customized services to fit your lawn’s needs.
           - One-Stop Convenience: All aspects of lawn care managed by a trusted team.
         `,
-        image: "/images/lawncare-benefits.jpg",
+        image: "landscape3.jpg",
       },
     ],
     testimonial: {

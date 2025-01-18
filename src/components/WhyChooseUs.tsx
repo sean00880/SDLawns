@@ -13,7 +13,7 @@ export function WhyChooseUs() {
         "Custom tree/weed removal plans",
         "High-quality fertilization techniques",
       ],
-      img: "/images/lawncare2.jpg",
+      img: "/images/lawn.jpg",
     },
     {
       name: "Pressure Washing",
@@ -22,7 +22,7 @@ export function WhyChooseUs() {
         "Advanced grease removal for driveways",
         "Deck and patio cleaning expertise",
       ],
-      img: "/images/pressure-washing.jpg",
+      img: "/images/powerwash.png",
     },
     {
       name: "Dump Runs",
@@ -31,7 +31,7 @@ export function WhyChooseUs() {
         "Construction waste recycling",
         "Affordable bulk pickup options",
       ],
-      img: "/images/dump-runs.jpg",
+      img: "/images/dump.png",
     },
     {
       name: "Gardening",
@@ -40,14 +40,14 @@ export function WhyChooseUs() {
         "Expert garden bed maintenance",
         "Personalized mulching and pruning services",
       ],
-      img: "/images/gardening.jpg",
+      img: "/images/gardening2.jpg",
     },
   ];
 
   const [activeCategory, setActiveCategory] = useState(categories[0]);
 
   return (
-    <section className="relative w-full h-screen flex flex-col items-center justify-center bg-gradient-to-br rounded-lg from-gray-100 via-white to-gray-300 px-6 sm:px-12">
+    <section id="why-us" className="relative w-full h-screen flex flex-col items-center justify-center bg-gradient-to-br rounded-lg from-gray-100 via-white to-gray-300 px-6 sm:px-12">
       <div className="text-center mb-8">
         <h2 className="text-4xl font-bold text-green-700 mb-4">Why Choose Us?</h2>
         <p className="text-gray-700 leading-relaxed max-w-2xl mx-auto">

@@ -35,9 +35,9 @@ const BookingForm: React.FC = () => {
 
   // Example "booked" dates (would be fetched in real usage)
   const bookedDates = [
-    new Date(2023, 7, 22),
-    new Date(2023, 7, 23),
-    new Date(2023, 7, 25),
+    new Date(2025, 7, 22),
+    new Date(2025, 7, 23),
+    new Date(2025, 7, 25),
   ];
 
   const prices: Prices = {

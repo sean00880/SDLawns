@@ -16,27 +16,27 @@ export function AboutSection() {
 
   const teamMembers = [
     {
-      name: "John Doe",
+      name: "Staff 1",
       role: "Landscape Designer",
-      image: "/images/team-member1.jpg",
+      image: "/images/OREN.jpg",
       bio: "John has over 15 years of experience creating stunning outdoor designs tailored to San Diego’s unique climate.",
     },
     {
-      name: "Jane Smith",
+      name: "Staff 2",
       role: "Horticulturist",
-      image: "/images/team-member2.jpg",
+      image: "/images/MYLES.png",
       bio: "Jane specializes in sustainable gardening practices, ensuring every plant thrives in Southern California's environment.",
     },
     {
-      name: "Michael Brown",
+      name: "Staff 3",
       role: "Construction Manager",
-      image: "/images/team-member3.jpg",
+      image: "/images/ETC.png",
       bio: "Michael oversees construction projects, ensuring high-quality craftsmanship and timely delivery for all clients.",
     },
   ];
 
   return (
-    <section className="bg-white w-full h-screen flex flex-col items-center justify-center px-6 sm:px-12 py-12">
+    <section className="bg-white w-full h-screen flex flex-col items-center justify-center px-6 sm:px-12 py-12" id="about">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}

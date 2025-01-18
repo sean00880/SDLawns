@@ -35,7 +35,7 @@ export const gardeningContent = {
           #### Step 4: Post-Planting Care
           We water, mulch, and provide care instructions to maintain the beauty of your garden.
         `,
-        image: "garden-process.jpg",
+        image: "garden.png",
       },
     ],
     testimonial: {
@@ -74,7 +74,7 @@ export const gardeningContent = {
           - **Prevents Weeds**: Weeds compete with your plants for nutrients—our service eliminates them at the root.
           - **Enhances Appearance**: A well-maintained garden bed boosts your property’s overall aesthetic.
         `,
-        image: "garden-maintenance.jpg",
+        image: "garden3.png",
       },
       {
         title: "Service Highlights",
@@ -84,7 +84,7 @@ export const gardeningContent = {
           - **Trimming & Pruning**: Ensures plants grow in their desired shape and size.
           - **Soil Care**: We aerate and enrich the soil for better water and nutrient retention.
         `,
-        image: "service-highlights.jpg",
+        image: "gardening.webp",
       },
     ],
     testimonial: {

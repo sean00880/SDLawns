@@ -12,22 +12,22 @@ import { Button } from "../components/ui/button";
 
 const blogPosts = [
   {
-    title: "Top Landscaping Trends in San Diego for 2023",
-    date: "January 5, 2023",
+    title: "Top Landscaping Trends in San Diego for 2025",
+    date: "January 16, 2025",
     excerpt:
       "Discover the most popular landscaping trends in San Diego, including sustainable designs, drought-tolerant plants, and outdoor living spaces.",
-    href: "/blog/landscaping-trends-san-diego-2023",
+    href: "/blog/landscaping-trends-san-diego-2025",
   },
   {
     title: "The Benefits of Professional Backyard Design in San Diego",
-    date: "February 20, 2023",
+    date: "January 17, 2025",
     excerpt:
       "Learn why investing in professional backyard design can elevate your San Diego home with improved functionality and stunning aesthetics.",
     href: "/blog/benefits-professional-backyard-design",
   },
   {
     title: "Drought-Tolerant Landscaping Ideas for San Diego Homes",
-    date: "March 10, 2023",
+    date: "January 18, 2025",
     excerpt:
       "Explore water-saving landscaping ideas that thrive in San Diego's climate, from succulents to native plants and xeriscaping tips.",
     href: "/blog/drought-tolerant-landscaping-ideas",
@@ -49,6 +49,7 @@ export function BlogSection() {
         py-16
         rounded-lg
       "
+      id="blog"
     >
       {/* Section Container */}
       <div

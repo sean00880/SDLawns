@@ -41,8 +41,8 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="sticky top-0 h-screen w-1/4 bg-gray-100 shadow-md p-4">
-      <h2 className="text-xl font-bold text-gray-700 mb-6">Categories</h2>
+    <aside className="sticky top-[5vh] h-screen w-1/4 bg-gray-100 shadow-md p-4">
+      <h2 className="text-xl font-bold text-gray-700 m-6">Categories</h2>
       <ul className="space-y-4">
         {categories.map((category) => (
           <li key={category.name} className="border-b pb-2">

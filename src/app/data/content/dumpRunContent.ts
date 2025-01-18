@@ -19,7 +19,7 @@ export const dumpRunContent = {
           - **Eco-Friendly Disposal**: Items are recycled or donated whenever possible.
           - **Convenience**: Flexible scheduling that fits your busy life.
         `,
-        image: "small-junk-pickup.jpg",
+        image: "dump2.png",
       },
       {
         title: "What We Take",
@@ -28,7 +28,7 @@ export const dumpRunContent = {
           - Boxes of old books, toys, or clothing.
           - Miscellaneous junk cluttering your garage or yard.
         `,
-        image: "junk-items.jpg",
+        image: "junkremoval.jpg",
       },
     ],
     testimonial: {
@@ -67,7 +67,7 @@ export const dumpRunContent = {
           - **Time Savings**: Let us handle the cleanup while you focus on your project.
           - **Eco-Friendly Practices**: Responsible disposal of construction materials.
         `,
-        image: "construction-debris.jpg",
+        image: "dump2.png",
       },
       {
         title: "Types of Debris We Remove",

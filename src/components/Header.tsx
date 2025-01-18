@@ -77,8 +77,8 @@ const Header: React.FC = () => {
           <Image
             src="/images/logoSD.png"
             alt="San Diego Custom Backyards Logo"
-            width={200}
-            height={60}
+            width={300}
+            height={90}
             className="object-contain rounded-md"
             priority
           />
@@ -118,6 +118,11 @@ const Header: React.FC = () => {
     <li>
       <Link href="/" className="nav-link" onClick={() => setMegaMenuOpen(false)}>
         Home
+      </Link>
+    </li>
+    <li>
+      <Link href="#about" className="nav-link" onClick={() => setMegaMenuOpen(false)}>
+        About
       </Link>
     </li>
     <li>
@@ -248,10 +253,49 @@ const Header: React.FC = () => {
       </div>
     </li>
     <li>
-      <Link href="/booking" className="nav-link" onClick={() => setMegaMenuOpen(false)}>
-        Get a Quote
+      <Link href="#why-us" className="nav-link" onClick={() => setMegaMenuOpen(false)}>
+        Why Us?
       </Link>
     </li>
+    <li>
+      <Link href="#testimonials" className="nav-link" onClick={() => setMegaMenuOpen(false)}>
+        Testimonials
+      </Link>
+    </li>
+    <li>
+      <Link href="#blog" className="nav-link" onClick={() => setMegaMenuOpen(false)}>
+        Blog
+      </Link>
+    </li>
+    
+    <div className="buttonContainer">
+  <svg className="effect" width="486" height="174" viewBox="0 0 486 174">
+    <defs>
+      <clipPath id="theClip">
+        <path d="m 102,35 h 276 c 28.808,0 52,23.192 52,52 0,28.808 -23.192,52
+            -52,52 H 102 C 73.192002,139 50,115.808 50,87 50,58.192 73.192002,35
+            102,35 Z" />
+      </clipPath>
+    </defs>
+    <path fill= "#e2e0de" d="m 102,35 h 276 c 28.808,0 52,23.192 52,52 0,28.808 -23.192,52
+        -52,52 H 102 C 73.192002,139 50,115.808 50,87 50,58.192 73.192002,35
+        102,35 Z" />
+    <g clip-path="url(#theClip)">
+      <g className="sprites">
+        <circle className="sprite1" cx="0" cy="0" r="70" />
+        <circle className="sprite1" fill="none" stroke="#000" stroke-width="1" cx="0" cy="0" r="70" />
+        <circle className="sprite2" cx="0" cy="0" r="50" />
+        <circle className="sprite2" fill="none" stroke="#000" stroke-width="1" cx="0" cy="0" r="50" />
+        <circle className="sprite3" cx="0" cy="0" r="30" />
+        <circle className="sprite3" fill="none" stroke="#000" stroke-width="1" cx="0" cy="0" r="30" />
+        <circle className="sprite4" cx="0" cy="0" r="10" />
+        <circle className="sprite4" fill="none" stroke="#000" stroke-width="1" cx="0" cy="0" r="10" />
+      </g>
+    </g>
+    <path fill="#fcfdff" d="m 102,45 h 276 c 23.268,0 42,18.732 42,42 0,23.268 -18.732,42 -42,42 H 102 C 78.732002,129 60,110.268 60,87 60,63.732 78.732002,45 102,45 Z" />
+  </svg>
+  <button className="button">Request Quote</button>
+</div>
   </ul>
 </nav>
 

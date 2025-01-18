@@ -111,7 +111,7 @@ export default function ServiceDetailPage() {
     <Box bgcolor="grey.50">
       {/* Hero Section */}
       <Box
-        py={8}
+        p={8}
         textAlign="center"
         sx={{ background: "linear-gradient(to right, #2e7d32, #1b5e20)", color: "white" }}
       >

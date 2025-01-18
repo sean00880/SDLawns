@@ -51,7 +51,7 @@ export function Testimonials() {
 
   return (
     <section
-      className="my-16 relative bg-cover bg-center text-white rounded-lg"
+      id="testimonials" className="my-16 relative bg-cover bg-center text-white rounded-lg bg-fixed"
       style={{ backgroundImage: "url('/images/sandeigo.webp')" }} // Add your background image
     >
       <div className="bg-black/40 py-10 px-6 rounded-lg">

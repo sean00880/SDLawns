@@ -18,7 +18,7 @@ export const pressureWashingContent = {
           - **Prevents Long-Term Damage**: Removes corrosive stains that could degrade the surface.
           - **Safety First**: Reduces slip hazards caused by grease and oil.
         `,
-        image: "driveway-spot-cleaning.jpg",
+        image: "driveway.png",
       },
       {
         title: "What We Clean",
@@ -27,7 +27,7 @@ export const pressureWashingContent = {
           - Grease and dirt buildup.
           - Stubborn spots that traditional cleaning methods can't handle.
         `,
-        image: "cleaning-process.jpg",
+        image: "powerwash.png",
       },
     ],
     testimonial: {
