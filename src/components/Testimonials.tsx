@@ -1,88 +1,131 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
+import { useState } from "react";
+import { motion } from "framer-motion"; // For animations
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 
 export function Testimonials() {
-  // Example data; you might fetch this from an API or keep it local
+  // Landscaping-related testimonials data
   const testimonials = [
     {
-      name: "John Doe",
-      role: "Car Enthusiast",
-      avatarUrl: "/avatars/john.jpg",   // or an external URL
-      feedback: "No Limits Mobile Detailing really lives up to its name—my car looks flawless, inside and out. Absolutely stellar service!"
+      name: "Lisa Green",
+      role: "Homeowner in San Diego",
+      avatarUrl: "/avatars/lisa.jpg",
+      feedback:
+        "San Diego Landscaping transformed my backyard into a stunning oasis. I can't believe how beautiful everything looks now!",
     },
     {
-      name: "Jane Smith",
-      role: "Busy Professional",
-      avatarUrl: "/avatars/jane.jpg",
-      feedback: "I love that they come straight to my office. The team was super thorough and my car hasn’t looked this good in years!"
+      name: "Robert Taylor",
+      role: "Business Owner",
+      avatarUrl: "/avatars/robert.jpg",
+      feedback:
+        "Our office garden has never looked better! The team was professional and delivered exactly what we wanted. Highly recommend!",
     },
     {
-      name: "Mike Johnson",
-      role: "Family Guy",
+      name: "Emma Johnson",
+      role: "Eco-Conscious Homeowner",
       avatarUrl: "",
-      feedback: "With two messy kids, my minivan needed serious help. These folks worked miracles—I can’t believe how clean everything is now."
+      feedback:
+        "I love how they used sustainable practices to redesign my front yard. It's beautiful, eco-friendly, and exactly what I wanted.",
     },
-  ]
+    {
+      name: "David Martinez",
+      role: "Commercial Property Manager",
+      avatarUrl: "/avatars/david.jpg",
+      feedback:
+        "Their maintenance packages are perfect for keeping our property looking polished year-round. Fantastic work!",
+    },
+  ];
+
+  // State to manage active testimonial in the carousel
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Next and previous handlers
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+  };
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length);
+  };
 
   return (
-    <section className="my-10">
-      <h2 className="text-3xl font-bold text-white mb-4 text-center">
-        Testimonials
-      </h2>
-      <p className="text-white/70 text-center mb-8">
-        Hear what our satisfied customers have to say!
-      </p>
+    <section
+      className="my-16 relative bg-cover bg-center text-white rounded-lg"
+      style={{ backgroundImage: "url('/images/sandeigo.webp')" }} // Add your background image
+    >
+      <div className="bg-black/40 py-10 px-6 rounded-lg">
+        <h2 className="text-4xl font-bold text-center mb-6">What Our Clients Say</h2>
+        <p className="text-white/80 text-center mb-10">
+          Discover how we’ve helped transform landscapes across San Diego.
+        </p>
 
-      {/* Container for cards */}
-      <div className="
-        grid 
-        grid-cols-1 
-        md:grid-cols-2 
-        lg:grid-cols-3 
-        gap-6
-        px-4
-        max-w-6xl
-        mx-auto
-      ">
-        {testimonials.map((t, i) => (
-          <Card 
-            key={i}
-            className="
-              bg-white/10
-              backdrop-blur-md
-              border border-white/20
-              shadow-xl
-              hover:scale-[1.02]
-              transition-transform
-              text-white
-            "
+        {/* Carousel */}
+        <div className="relative w-full max-w-4xl rounded-lg mx-auto overflow-hidden">
+          <motion.div
+            className="flex"
+            initial={{ x: 0 }}
+            animate={{ x: -currentIndex * 100 + "%" }}
+            transition={{ duration: 0.6 }}
+            style={{ width: `${testimonials.length * 100}%` }}
           >
-            <CardHeader className="flex items-center space-x-4">
-              <Avatar>
-                {t.avatarUrl ? (
-                  <AvatarImage src={t.avatarUrl} alt={t.name} />
-                ) : (
-                  <AvatarFallback>{t.name.charAt(0)}</AvatarFallback>
-                )}
-              </Avatar>
-              <div>
-                <CardTitle>{t.name}</CardTitle>
-                <CardDescription className="text-sm text-white/70">
-                  {t.role}
-                </CardDescription>
-              </div>
-            </CardHeader>
+            {testimonials.map((testimonial, index) => (
+              <Card
+                key={index}
+                className="flex-shrink-0 rounded-lg w-full px-6 py-8 bg-white/20 backdrop-blur-lg  text-white"
+                style={{ flex: "0 0 100%" }}
+              >
+                <CardHeader className="flex items-center space-x-4">
+                  <Avatar>
+                    {testimonial.avatarUrl ? (
+                      <AvatarImage src={testimonial.avatarUrl} alt={testimonial.name} />
+                    ) : (
+                      <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                    )}
+                  </Avatar>
+                  <div>
+                    <CardTitle>{testimonial.name}</CardTitle>
+                    <CardDescription className="text-sm text-white/70">{testimonial.role}</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-white/90 text-sm leading-relaxed">"{testimonial.feedback}"</p>
+                </CardContent>
+              </Card>
+            ))}
+          </motion.div>
+        </div>
 
-            <CardContent>
-              <p className="text-white/80 text-sm leading-relaxed">
-                "{t.feedback}"
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        {/* Navigation Buttons */}
+        <div className="absolute top-1/2 left-6 transform -translate-y-1/2">
+          <button
+            onClick={handlePrev}
+            className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/40 transition"
+          >
+            &#8592;
+          </button>
+        </div>
+        <div className="absolute top-1/2 right-6 transform -translate-y-1/2">
+          <button
+            onClick={handleNext}
+            className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/40 transition"
+          >
+            &#8594;
+          </button>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-center mt-6">
+          {testimonials.map((_, index) => (
+            <div
+              key={index}
+              className={`w-3 h-3 rounded-full mx-1 ${
+                index === currentIndex ? "bg-green-500" : "bg-white/30"
+              } transition`}
+            ></div>
+          ))}
+        </div>
       </div>
     </section>
-  )
+  );
 }

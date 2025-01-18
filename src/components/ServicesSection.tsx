@@ -4,118 +4,93 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { exteriorServices, interiorServices } from "../app/data/servicesData";
-import { VehicleType } from "./PackagesSection";
+import { lawncareServices, pressureWashingServices, dumpRunServices, gardeningServices } from "../app/data/servicesData";
+
+type Frequency = "weekly" | "bi-weekly" | "monthly" | "one-time";
 
 interface ServicesSectionProps {
-  vehicleType: VehicleType;
+  category: "lawncare" | "pressureWashing" | "dumpRuns" | "gardening";
+  frequency: Frequency;
 }
 
-export function ServicesSection({ vehicleType }: ServicesSectionProps) {
-  // Helper to pick the correct price
-  const getPrice = (srv: any) => {
-    switch (vehicleType) {
-      case "suvTruck":
-        return srv.suvTruckPrice;
-      case "van":
-        return srv.vanPrice;
-      default:
-        return srv.sedanPrice;
-    }
+export function ServicesSection({ category, frequency }: ServicesSectionProps) {
+  const generateBookingURL = (serviceId: string) => {
+    const params = new URLSearchParams({
+      services: JSON.stringify([serviceId]),
+      frequency,
+    }).toString();
+    return `/booking?${params}`;
   };
 
-  // Renders a grid of service cards for either exterior or interior
-  const renderServices = (services: typeof exteriorServices) => {
+  const generateReadMoreURL = (serviceId: string) => {
+    return `/services/${serviceId}`;
+  };
+
+  const renderServices = (services: typeof lawncareServices.services) => {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services.map((srv) => {
-          const price = getPrice(srv);
-
-          return (
-            <Card
-              key={srv.name}
-              className="
-                relative
-                bg-white/10
-                backdrop-blur-md
-                border border-white/20
-                text-white
-                shadow-lg
-                hover:shadow-xl
-                hover:scale-[1.02]
-                transition-transform
-                overflow-hidden
-                flex
-                flex-col
-              "
-            >
-              {/* Top image (srv.img) */}
-              <div className="relative w-full h-40">
-                <Image
-                  src={srv.img}     // Path stored in srv.img
-                  alt={srv.name}
-                  fill
-                  className="object-cover"
-                />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        {services.map((srv) => (
+          <Card
+            key={srv.id}
+            className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform flex flex-col"
+          >
+            {/* Service Image with Price */}
+            <div className="relative w-full h-52">
+              <Image
+                src={srv.img} // Path stored in srv.img
+                alt={srv.name}
+                fill
+                className="object-cover rounded-t-lg"
+              />
+              <div className="absolute top-0 left-0 bg-green-700 text-white px-4 py-2 text-sm font-bold rounded-br-lg">
+                ${srv.pricing[frequency]} / {frequency.replace("-", " ")}
               </div>
+            </div>
 
-              {/* Name (left) + Price (right) */}
-              <div className="flex items-center justify-between p-4 pb-0">
-                <h3 className="text-xl font-semibold">{srv.name}</h3>
-                <span className="text-lg font-bold text-green-400">${price}</span>
-              </div>
-
-              {/* Description content */}
-              <CardContent className="px-4 pt-2 pb-4 flex-1 space-y-2">
-                {/* Show only a portion of description so the card isn't huge */}
-                {srv.description.slice(0, 5).map((line: string, idx: number) => (
-                  <p key={idx} className="text-sm text-white/80 leading-relaxed">
+            {/* Service Details */}
+            <div className="p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">{srv.name}</h3>
+              <CardContent className="space-y-2">
+                {srv.description.map((line, idx) => (
+                  <p key={idx} className="text-sm text-gray-700 leading-relaxed">
                     {line}
                   </p>
                 ))}
               </CardContent>
+            </div>
 
-              {/* CTA: Book Now */}
-              <div className="px-4 pb-4 mt-auto flex justify-center">
-                <Link href={`/booking?service=${srv.name}`}>
-                  <Button className="bg-green-600 hover:bg-green-700 text-sm">
-                    Book Now
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          );
-        })}
+            {/* CTA: Book Now and Read More */}
+            <div className="p-4 mt-auto flex justify-between items-center">
+              <Link href={generateBookingURL(srv.id)} className="w-1/2 pr-2">
+                <Button className="w-full bg-green-600 text-white hover:bg-green-700">
+                  Book Now
+                </Button>
+              </Link>
+              <Link href={generateReadMoreURL(srv.id)} className="w-1/2 pl-2 text-center">
+                <Button variant="outline" className="w-full text-green-600 hover:text-green-700 border-green-600 hover:border-green-700">
+                  Read More
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        ))}
       </div>
     );
   };
 
-  // Tab logic for exterior vs. interior
-  const [activeTab, setActiveTab] = React.useState<"exterior" | "interior">("exterior");
+  const services =
+    category === "lawncare"
+      ? lawncareServices.services
+      : category === "pressureWashing"
+      ? pressureWashingServices.services
+      : category === "dumpRuns"
+      ? dumpRunServices.services
+      : gardeningServices.services;
 
   return (
-    <section className="space-y-4 my-8">
-      <h2 className="text-3xl font-semibold text-white">Services</h2>
-
-      {/* Tab Buttons */}
-      <div className="flex space-x-4">
-        <Button
-          variant={activeTab === "exterior" ? "default" : "secondary"}
-          onClick={() => setActiveTab("exterior")}
-        >
-          Exterior
-        </Button>
-        <Button
-          variant={activeTab === "interior" ? "default" : "secondary"}
-          onClick={() => setActiveTab("interior")}
-        >
-          Interior
-        </Button>
-      </div>
-
-      {/* Conditionally render the grid */}
-      {activeTab === "exterior" && renderServices(exteriorServices)}
-      {activeTab === "interior" && renderServices(interiorServices)}
+    <section className="px-4 py-10 bg-gray-50 flex flex-col items-center">
+      <h2 className="text-4xl font-bold text-gray-800 mb-8">Our Services</h2>
+      {renderServices(services)}
     </section>
   );
 }

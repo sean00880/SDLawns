@@ -7,7 +7,7 @@ const Sidebar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar w-1/6">
       <ul>
         <li>
           <Link href="/services" className={pathname === '/services' ? 'active' : ''}>Services</Link>

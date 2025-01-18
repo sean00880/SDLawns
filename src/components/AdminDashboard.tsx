@@ -2,15 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/components/lib/supaBaseClient";
-import { exteriorServices, interiorServices } from "../app/data/servicesData";
-import { packagesData } from "../app/data/packagesData";
-import { Button } from "@/components/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/components/ui/dropdown-menu";
+  lawncareServices,
+  pressureWashingServices,
+  dumpRunServices,
+  gardeningServices,
+} from "../app/data/servicesData";
+import { Button } from "@/components/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -21,17 +19,38 @@ import {
 import { Calendar } from "@nextui-org/react";
 import { today, getLocalTimeZone } from "@internationalized/date";
 
-type VehicleType = "sedan" | "suvTruck" | "van";
+type Frequency = "weekly" | "bi-weekly" | "monthly" | "one-time";
+type Category = "lawncare" | "pressureWashing" | "gardening" | "dumpRuns";
+type Service = {
+  id: string;
+  name: string;
+  price: number;
+  pricing: {
+    weekly: number;
+    "bi-weekly": number;
+    monthly: number;
+    "one-time": number;
+  };
+  img?: string;
+  description?: string[];
+};
 
-const AdminModifyQuote = () => {
+const AdminDashboard = () => {
   const [quotes, setQuotes] = useState<any[]>([]);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
-  const [vehicleSize, setVehicleSize] = useState<VehicleType>("sedan");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedFrequency, setSelectedFrequency] = useState<Frequency>("weekly");
+  const [selectedCategory, setSelectedCategory] = useState<Category>("lawncare");
   const [selectedDate, setSelectedDate] = useState(today(getLocalTimeZone()));
   const [total, setTotal] = useState<number>(0);
-  const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  const categories: Record<Category, Service[]> = {
+    lawncare: lawncareServices.services,
+    pressureWashing: pressureWashingServices.services,
+    dumpRuns: dumpRunServices.services,
+    gardening: gardeningServices.services,
+  };
 
   useEffect(() => {
     const fetchQuotes = async () => {
@@ -50,71 +69,82 @@ const AdminModifyQuote = () => {
     fetchQuotes();
   }, []);
 
-  const handleEdit = (quote: any) => {
-    setSelectedQuote(quote);
-    setVehicleSize(quote.vehicle_size);
-    setSelectedServices(quote.services || []);
-    setSelectedDate(today(getLocalTimeZone()));
-    setTotal(quote.total);
-    setIsEditing(true);
+  const getReadableCategory = (category: string) => {
+    switch (category) {
+      case "lawncare":
+        return "Lawn Care";
+      case "pressureWashing":
+        return "Pressure Washing";
+      case "gardening":
+        return "Gardening";
+      case "dumpRuns":
+        return "Dump Runs";
+      default:
+        return category;
+    }
   };
 
-  const handleDelete = async (quoteId: string) => {
-    const confirmDelete = confirm("Are you sure you want to delete this quote?");
-    if (confirmDelete) {
-      const { error } = await supabase.from("quote_requests").delete().eq("id", quoteId);
+  const getReadableServices = (services: string, category: string) => {
+    const serviceIds = JSON.parse(services);
+    const serviceList = categories[category as Category];
+    return serviceIds
+      .map((serviceId: string) => {
+        const service = serviceList.find((s) => s.id === serviceId);
+        return service ? service.name : serviceId;
+      })
+      .join(", ");
+  };
+
+  const handleDelete = async (id: number) => {
+    if (confirm("Are you sure you want to delete this quote?")) {
+      const { error } = await supabase.from("quote_requests").delete().eq("id", id);
+
       if (error) {
         console.error("Error deleting quote:", error);
-        alert("Failed to delete quote.");
+        alert("Failed to delete the quote.");
       } else {
-        setQuotes((prev) => prev.filter((quote) => quote.id !== quoteId));
+        setQuotes((prev) => prev.filter((q) => q.id !== id));
         alert("Quote deleted successfully.");
       }
     }
   };
 
+  const handleEdit = (quote: any) => {
+    setSelectedQuote(quote);
+    setSelectedServices(JSON.parse(quote.services));
+    setSelectedFrequency(quote.frequency);
+    setSelectedCategory(quote.category);
+    setSelectedDate(today(getLocalTimeZone())); // Update this if date is stored differently
+    setTotal(quote.total);
+    setIsEditing(true);
+  };
+
   const computeTotal = () => {
-    const allItems = [...exteriorServices, ...interiorServices, ...packagesData];
-    let sum = 0;
-
-    for (const item of allItems) {
-      if (selectedServices.includes(item.name)) {
-        switch (vehicleSize) {
-          case "suvTruck":
-            sum += item.suvTruckPrice;
-            break;
-          case "van":
-            sum += item.vanPrice;
-            break;
-          default:
-            sum += item.sedanPrice;
-            break;
-        }
-      }
-    }
-
-    setTotal(sum);
+    const servicesInCategory = categories[selectedCategory];
+    const newTotal = selectedServices.reduce((acc, serviceId) => {
+      const service = servicesInCategory.find((srv) => srv.id === serviceId);
+      return acc + (service?.pricing[selectedFrequency] || 0);
+    }, 0);
+    setTotal(newTotal);
   };
 
   useEffect(() => {
     computeTotal();
-  }, [vehicleSize, selectedServices]);
+  }, [selectedServices, selectedFrequency, selectedCategory]);
 
   const handleUpdateQuote = async () => {
-    setLoading(true);
     const updatedData = {
-      vehicle_size: vehicleSize,
-      services: selectedServices,
-      date: selectedDate.toString(),
+      category: selectedCategory,
+      frequency: selectedFrequency,
+      services: JSON.stringify(selectedServices),
       total,
+      selected_date: selectedDate.toString(),
     };
 
     const { error } = await supabase
       .from("quote_requests")
       .update(updatedData)
       .eq("id", selectedQuote.id);
-
-    setLoading(false);
 
     if (error) {
       console.error("Error updating quote:", error);
@@ -127,57 +157,15 @@ const AdminModifyQuote = () => {
             : quote
         )
       );
-
-      // Send email to admin
-      const adminResponse = await fetch("/api/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: "service@nolimitsmobiledetailing.com",
-          subject: "Quote Modified by Admin",
-          firstName: "Admin",
-          details: {
-            ...updatedData,
-            client_email: selectedQuote.client_email,
-            client_phone: selectedQuote.client_phone,
-          },
-        }),
-      });
-
-      if (!adminResponse.ok) {
-        const adminErrorData = await adminResponse.json();
-        console.error("Error sending admin email:", adminErrorData.error);
-      }
-
-      // Send email to client
-      const clientResponse = await fetch("/api/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: selectedQuote.client_email,
-          subject: "Your Quote Has Been Updated",
-          firstName: selectedQuote.client_name,
-          details: updatedData,
-        }),
-      });
-
-      if (!clientResponse.ok) {
-        const clientErrorData = await clientResponse.json();
-        console.error("Error sending client email:", clientErrorData.error);
-      }
-
-      alert("Quote updated successfully and emails sent!");
       setIsEditing(false);
+      alert("Quote updated successfully!");
     }
   };
 
   return (
-    <div className="min-h-screen bg-black p-6 text-white">
-      <h1 className="text-3xl font-bold mb-6">Admin: Modify Quotes</h1>
+    <div className="min-h-screen bg-gray-100 p-6 text-gray-800">
+      <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+      <p className="text-gray-500 mb-6">Manage and modify quote requests</p>
 
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Quotes</h2>
@@ -185,65 +173,95 @@ const AdminModifyQuote = () => {
           {quotes.map((quote) => (
             <div
               key={quote.id}
-              className="p-4 bg-white text-black shadow rounded flex justify-between items-center"
+              className="p-4 bg-gray-200 shadow-lg rounded-lg flex justify-between items-start relative"
+              style={{
+                boxShadow: "8px 8px 15px #bdbdbd, -8px -8px 15px #ffffff",
+              }}
             >
               <div>
                 <p><strong>ID:</strong> {quote.id}</p>
-                <p><strong>Vehicle Size:</strong> {quote.vehicle_size}</p>
-                <p><strong>Total:</strong> ${quote.total}</p>
-                <p><strong>Services:</strong> {JSON.parse(quote.services).join(", ")}</p>
-                <p><strong>Date:</strong> {quote.date}</p>
+                <p><strong>Category:</strong> {getReadableCategory(quote.category)}</p>
+                <p><strong>Frequency:</strong> {quote.frequency}</p>
+                <p>
+                  <strong>Services:</strong> {getReadableServices(quote.services, quote.category)}
+                </p>
+                <p><strong>Date:</strong> {quote.selected_date || "Not specified"}</p>
               </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <span>
-                    <Button variant="ghost" className="text-lg font-semibold">
-                      •••
-                    </Button>
-                  </span>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => handleEdit(quote)}>Edit</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDelete(quote.id)}>Delete</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="absolute top-4 right-4 text-green-700 text-lg italic">
+                <strong>Total:</strong> ${quote.total}
+              </div>
+              <div className="flex flex-col space-y-2 mt-10">
+                <Button
+                  onClick={() => handleEdit(quote)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  style={{
+                    boxShadow: "inset 4px 4px 8px #bdbdbd, inset -4px -4px 8px #ffffff",
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => handleDelete(quote.id)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg"
+                  style={{
+                    boxShadow: "inset 4px 4px 8px #bdbdbd, inset -4px -4px 8px #ffffff",
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent className="bg-black">
+        <DialogContent className="bg-gray-200 text-gray-800">
           <DialogHeader>
             <DialogTitle>Edit Quote</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="block font-medium mb-2">Vehicle Size</label>
+              <label>Category</label>
               <select
-                value={vehicleSize}
-                onChange={(e) => setVehicleSize(e.target.value as VehicleType)}
-                className="w-full p-2 border rounded bg-black"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value as Category)}
+                className="w-full p-2 border rounded bg-gray-300"
               >
-                <option value="sedan" className="bg-black">Sedan</option>
-                <option value="suvTruck" className="bg-black">SUV/Truck</option>
-                <option value="van" className="bg-black">Van</option>
+                {Object.keys(categories).map((category) => (
+                  <option key={category} value={category}>
+                    {getReadableCategory(category)}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="block font-medium mb-2">Services</label>
+              <label>Frequency</label>
+              <select
+                value={selectedFrequency}
+                onChange={(e) => setSelectedFrequency(e.target.value as Frequency)}
+                className="w-full p-2 border rounded bg-gray-300"
+              >
+                {["weekly", "bi-weekly", "monthly", "one-time"].map((freq) => (
+                  <option key={freq} value={freq}>
+                    {freq}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label>Services</label>
               <div className="space-y-2">
-                {[...exteriorServices, ...interiorServices, ...packagesData].map((service) => (
-                  <label key={service.name} className="flex items-center space-x-2">
+                {categories[selectedCategory].map((service) => (
+                  <label key={service.id} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={selectedServices.includes(service.name)}
+                      checked={selectedServices.includes(service.id)}
                       onChange={() =>
                         setSelectedServices((prev) =>
-                          prev.includes(service.name)
-                            ? prev.filter((s) => s !== service.name)
-                            : [...prev, service.name]
+                          prev.includes(service.id)
+                            ? prev.filter((id) => id !== service.id)
+                            : [...prev, service.id]
                         )
                       }
                     />
@@ -253,30 +271,30 @@ const AdminModifyQuote = () => {
               </div>
             </div>
             <div>
-              <label className="block font-medium mb-2">Date</label>
+              <label>Date</label>
               <Calendar
                 value={selectedDate}
                 onChange={setSelectedDate}
-                className="bg-black text-white"
+                aria-label="Edit Quote Date"
+                className="bg-gray-300 text-gray-800"
               />
             </div>
             <div>
-              <label className="block font-medium mb-2">Total ($)</label>
+              <label>Total</label>
               <input
                 type="number"
                 value={total}
                 onChange={(e) => setTotal(Number(e.target.value))}
-                className="w-full p-2 border rounded bg-gray-100 text-green-700"
+                className="w-full p-2 border rounded bg-gray-300 text-green-500"
               />
             </div>
           </div>
           <DialogFooter>
             <Button
               onClick={handleUpdateQuote}
-              disabled={loading}
-              className="bg-green-600 text-white py-2 px-4 rounded hover:bg-gray-700"
+              className="bg-green-600 text-white py-2 px-4 rounded-lg"
             >
-              {loading ? "Updating..." : "Save Changes"}
+              Save Changes
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -285,4 +303,4 @@ const AdminModifyQuote = () => {
   );
 };
 
-export default AdminModifyQuote;
+export default AdminDashboard;

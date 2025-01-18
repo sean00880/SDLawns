@@ -10,83 +10,113 @@ import {
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
-// Example data: replace with real blog posts (possibly fetched from an API).
 const blogPosts = [
   {
-    title: "The Ultimate Guide to Car Detailing",
-    date: "July 12, 2023",
-    excerpt: "Keep your car shining like new with these pro tips and essentials. From washing and waxing to interior detailing, we cover it all.",
-    href: "/blog/ultimate-guide-to-car-detailing",
+    title: "Top Landscaping Trends in San Diego for 2023",
+    date: "January 5, 2023",
+    excerpt:
+      "Discover the most popular landscaping trends in San Diego, including sustainable designs, drought-tolerant plants, and outdoor living spaces.",
+    href: "/blog/landscaping-trends-san-diego-2023",
   },
   {
-    title: "5 Tools Every Car Detailer Needs",
-    date: "May 20, 2023",
-    excerpt: "From microfiber towels to foam cannons, we break down the must-have equipment in every detailer's arsenal.",
-    href: "/blog/5-tools-every-car-detailer-needs",
+    title: "The Benefits of Professional Backyard Design in San Diego",
+    date: "February 20, 2023",
+    excerpt:
+      "Learn why investing in professional backyard design can elevate your San Diego home with improved functionality and stunning aesthetics.",
+    href: "/blog/benefits-professional-backyard-design",
   },
   {
-    title: "Ceramic Coating vs. Wax: Which Is Right for You?",
-    date: "April 10, 2023",
-    excerpt: "Is ceramic coating worth the investment, or should you stick to traditional wax? Let's compare durability, shine, and cost.",
-    href: "/blog/ceramic-coating-vs-wax",
+    title: "Drought-Tolerant Landscaping Ideas for San Diego Homes",
+    date: "March 10, 2023",
+    excerpt:
+      "Explore water-saving landscaping ideas that thrive in San Diego's climate, from succulents to native plants and xeriscaping tips.",
+    href: "/blog/drought-tolerant-landscaping-ideas",
   },
 ];
 
 export function BlogSection() {
   return (
-    <section className="my-10 px-4 sm:px-8">
-      {/* Section Header */}
-      <h2 className="text-3xl font-bold text-white mb-2 text-center">
-        Our Blog
-      </h2>
-      <p className="text-white/70 text-center mb-8">
-        Tips, insights, and the latest news in auto detailing
-      </p>
-
-      {/* Posts Grid */}
+    <section
+      className="
+        min-h-screen
+        flex
+        flex-col
+        justify-center
+        items-center
+        bg-gray-100
+        px-6
+        sm:px-12
+        py-16
+        rounded-lg
+      "
+    >
+      {/* Section Container */}
       <div
         className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          lg:grid-cols-3
-          gap-6
-          max-w-6xl
-          mx-auto
+          w-full
+          max-w-7xl
+          rounded-lg
+          shadow-neumorphic
+          bg-white
+          p-8
         "
       >
-        {blogPosts.map((post, i) => (
-          <Card
-            key={i}
-            className="
-              bg-white/10
-              backdrop-blur-md
-              border border-white/20
-              shadow-xl
-              hover:scale-[1.02]
-              transition-transform
-              duration-300
-              text-white
-            "
-          >
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">
-                {post.title}
-              </CardTitle>
-              <CardDescription className="text-sm text-white/70">
-                {post.date}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-white/80 mb-4">{post.excerpt}</p>
-              <Link href={post.href}>
-                <Button variant="link" className="text-green-400 p-0 h-auto">
-                  Read More →
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        ))}
+        {/* Section Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl text-black mb-4 font-semibold">
+            Landscaping Insights & Tips
+          </h2>
+          <p className="text-lg text-gray-700">
+            Stay updated with the latest trends and expert advice to transform
+            your backyard in San Diego.
+          </p>
+        </div>
+
+        {/* Posts Grid */}
+        <div
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            lg:grid-cols-3
+            gap-8
+          "
+        >
+          {blogPosts.map((post, i) => (
+            <Card
+              key={i}
+              className="
+                bg-gray-50
+                rounded-lg
+                shadow-neumorphic
+                hover:shadow-neumorphic-hover
+                transition-shadow
+                duration-300
+                overflow-hidden
+              "
+            >
+              <CardHeader className="p-6">
+                <CardTitle className="text-2xl text-black">
+                  {post.title}
+                </CardTitle>
+                <CardDescription className="text-sm text-gray-500">
+                  {post.date}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <p className="text-gray-700 mb-6">{post.excerpt}</p>
+                <Link href={post.href}>
+                  <Button
+                    variant="link"
+                    className="text-green-500 p-0 h-auto"
+                  >
+                    Read More →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   );

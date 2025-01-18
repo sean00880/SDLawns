@@ -8,7 +8,6 @@ export function Hero() {
     <section className="relative w-full h-screen overflow-hidden flex items-center justify-center text-white">
       {/* Background slides container */}
       <div className="absolute inset-0 w-full h-full">
-
         {/* Slide 1 */}
         <div
           className="
@@ -19,7 +18,7 @@ export function Hero() {
             opacity-0
           "
           style={{ 
-            backgroundImage: "url('/images/slide1.jpg')",
+            backgroundImage: "url('/images/landscape1.jpg')",
           }}
         />
 
@@ -33,7 +32,7 @@ export function Hero() {
             opacity-0
           "
           style={{ 
-            backgroundImage: "url('/images/slide2.jpg')",
+            backgroundImage: "url('/images/landscape2.jpg')",
           }}
         />
 
@@ -47,7 +46,7 @@ export function Hero() {
             opacity-0
           "
           style={{ 
-            backgroundImage: "url('/images/slide3.jpg')",
+            backgroundImage: "url('/images/landscape3.jpg')",
           }}
         />
       </div>
@@ -58,17 +57,17 @@ export function Hero() {
       {/* Hero content */}
       <div className="relative z-[2] max-w-2xl px-4 text-center space-y-4">
         <h1 className="text-5xl font-bold drop-shadow-md">
-          No Limits Mobile Detailing LLC
+          Transform Your Outdoors with <br /> Premier Landscaping Services
         </h1>
         <p className="text-lg text-white/90 leading-relaxed">
-          Premium Mobile Auto Detailing Services
+          Creating Stunning, Sustainable Landscapes Across San Diego
         </p>
         <p className="text-3xl font-semibold">
-          San Diego
+          Your Dream Yard Starts Here
         </p>
-        <Link href="/booking">
+        <Link href="/contact">
           <Button variant="default" className="bg-green-600 hover:bg-green-700 mt-4">
-            Book Now
+            Get a Free Quote
           </Button>
         </Link>
       </div>
