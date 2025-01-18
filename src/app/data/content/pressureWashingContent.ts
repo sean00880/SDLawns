@@ -65,7 +65,7 @@ export const pressureWashingContent = {
           - **Enhances Appearance**: Restores color and texture to your patio and deck.
           - **Improves Safety**: Eliminates slippery algae and moss buildup.
         `,
-        image: "patio-deck-cleaning.jpg",
+        image: "patiodeck.jpg",
       },
       {
         title: "Surfaces We Clean",
@@ -74,7 +74,7 @@ export const pressureWashingContent = {
           - Stone, brick, and tile patios.
           - Outdoor furniture and adjacent areas.
         `,
-        image: "surfaces-cleaned.jpg",
+        image: "patio2.jpg",
       },
     ],
     testimonial: {
@@ -112,7 +112,7 @@ export const pressureWashingContent = {
           - **Patio & Deck Cleaning**: Restores your outdoor spaces to their original beauty.
           - **Eco-Friendly Practices**: Safe for your home and the environment.
         `,
-        image: "exterior-cleaning.jpg",
+        image: "fullpowerwash.jpg",
       },
       {
         title: "How It Works",
@@ -126,7 +126,7 @@ export const pressureWashingContent = {
           #### Step 3: Final Inspection
           We ensure your property meets our high standards before completing the job.
         `,
-        image: "cleaning-process-package.jpg",
+        image: "patio3.jpg",
       },
     ],
     testimonial: {

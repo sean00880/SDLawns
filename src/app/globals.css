@@ -112,6 +112,11 @@ body, html, #__next {
   }
   
   .glass-header {
+    height: 9vh;
+    justify-content: center;
+    display: flex
+;
+    flex-direction: column;
     @apply bg-white border-b border-white/10
            shadow-lg;
   }
@@ -251,7 +256,6 @@ color:black;
   transform: scale(0.4);
   transform-origin: 50% 50%;
   transition: transform 60ms;
-  width: 486px;
 }
 .buttonContainer:active {
   transform: scale(0.65);

@@ -18,7 +18,7 @@ export const gardeningContent = {
           - **Expert Plant Selection**: Our team ensures the plants we use thrive in San Diego’s climate.
           - **Seamless Execution**: From soil preparation to the final arrangement, we handle every detail.
         `,
-        image: "planting-service.jpg",
+        image: "planting.jpg",
       },
       {
         title: "Our Process",
