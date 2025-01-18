@@ -86,7 +86,7 @@ const Header: React.FC = () => {
 
         {/* Hamburger Icon for Mobile */}
         <button
-          className="md:hidden flex flex-col items-center justify-center w-10 h-10 focus:outline-none"
+          className="lg:hidden flex flex-col items-center justify-center w-10 h-10 focus:outline-none"
           onClick={toggleMenu}
         >
           <div
@@ -112,7 +112,7 @@ const Header: React.FC = () => {
 <nav
   className={`${
     menuOpen ? "block" : "hidden"
-  } md:flex md:items-center md:space-x-6 w-full md:w-auto text-black`}
+  } lg:flex lg:items-center lg:space-x-6 w-full lg:w-auto text-black`}
 >
   <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 text-black">
     <li>
