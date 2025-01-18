@@ -122,7 +122,7 @@ export const gardeningContent = {
           - **Garden Bed Maintenance**: Weed removal, fertilizing, and pruning.
           - **Seasonal Updates**: Swap out plants for seasonal blooms to keep your garden dynamic.
         `,
-        image: "garden-package.jpg",
+        image: "gardening.webp",
       },
       {
         title: "How It Works",
@@ -136,7 +136,7 @@ export const gardeningContent = {
           #### Step 3: Ongoing Support
           We provide tips and optional maintenance plans to keep your garden thriving.
         `,
-        image: "garden-how-it-works.jpg",
+        image: "gardenbed.webp",
       },
     ],
     testimonial: {
