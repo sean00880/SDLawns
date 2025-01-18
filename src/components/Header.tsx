@@ -146,7 +146,7 @@ const Header: React.FC = () => {
                   <h3 className="font-bold text-black text-center text-lg mb-2">
                     <Link
                       href={`/categories/${category.toLowerCase()}`}
-                      className="text-green-600 hover:underline"
+                      className="text-black hover:underline"
                       onClick={() => {
                         setMegaMenuOpen(false);
                       }}
